@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MAD Practicals</string>
+    <string name="action_settings">Settings</string>
+    <string name="main_app_bar_image_cnt">main app bar image</string>
+    <string name="practical1_label">Practical 1</string>
+    <string name="login_image_content_desc">login image</string>
+</resources>

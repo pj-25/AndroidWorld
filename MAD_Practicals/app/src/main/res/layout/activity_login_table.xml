@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#DF7627"
+    android:orientation="vertical"
+    android:stretchColumns="0"
+    tools:context=".p1.LoginActivity">
+
+    <TableRow>
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/login_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme"
+            app:menu="@menu/login_layout_menu"
+            android:layout_span="2"
+            android:layout_weight="1"/>
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_height="196dp"
+            android:background="#2D2D2D"
+            android:gravity="center"
+            android:shadowColor="#FFFFFF"
+            android:text="Login"
+            android:textColor="#FFFFFF"
+            android:textSize="56sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="171dp"
+            android:layout_height="196dp"
+            android:background="#2D2D2D"
+            android:contentDescription="@string/login_image_content_desc"
+            android:src="@drawable/ic_baseline_account_circle_24"
+            tools:ignore="VectorDrawableCompat" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_span="2"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text=" *Table Layout " />
+    </TableRow>
+
+    <TableRow android:layout_margin="16dp">
+
+        <EditText
+            android:id="@+id/emailId"
+            android:layout_height="wrap_content"
+            android:layout_column="0"
+            android:layout_marginTop="16dp"
+            android:layout_span="2"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_account"
+            android:ems="10"
+            android:hint="Email ID"
+            android:inputType="textEmailAddress" />
+    </TableRow>
+
+    <TableRow android:layout_margin="16dp">
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_height="wrap_content"
+            android:layout_span="2"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_password"
+            android:ems="10"
+            android:hint="Password"
+            android:inputType="textPassword" />
+    </TableRow>
+
+    <TableRow>
+
+        <CheckBox
+            android:id="@+id/show_check_box"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:drawableLeft="@drawable/ic_show_eye"
+            android:onClick="showPassword" />
+    </TableRow>
+
+    <TableRow
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/login_gif"
+            android:layout_span="2"
+
+            android:layout_weight="1"
+            app:srcCompat="@drawable/resource_interface" />
+    </TableRow>
+
+    <TableRow android:layout_margin="16dp">
+
+        <Button
+            android:id="@+id/login_btn"
+            android:layout_height="wrap_content"
+            android:layout_span="2"
+            android:layout_weight="1"
+            android:onClick="login"
+            android:text="Login"
+            app:icon="@drawable/ic_action_login"
+            app:iconGravity="textStart" />
+    </TableRow>
+</TableLayout>

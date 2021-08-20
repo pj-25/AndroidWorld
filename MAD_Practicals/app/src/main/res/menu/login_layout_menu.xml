@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_relative"
+        android:icon="@drawable/ic_relative_layout"
+        android:title="Relative Layout"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_linear"
+        android:icon="@drawable/ic_linear_layout"
+        android:title="Linear Layout"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_table"
+        android:icon="@drawable/ic_table_layout"
+        android:title="Table Layout"
+        app:showAsAction="never" />
+</menu>
