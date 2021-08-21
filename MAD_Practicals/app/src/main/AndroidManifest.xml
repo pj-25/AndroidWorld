@@ -9,19 +9,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MAD_Practicals">
-        <activity android:name=".p1.ReceiverActivity" android:label="@string/practical1_label" android:parentActivityName=".p1.SenderActivity"/>
-        <activity android:name=".p1.SenderActivity" android:label="@string/practical1_label" android:parentActivityName=".p1.LoginActivity" >
+        <activity android:name=".p2.StudentRecordsActivity" android:label="Practical 2(.3)" android:parentActivityName=".PracticalOverviewActivity"></activity>
+        <activity
+            android:name=".p1.ReceiverActivity"
+            android:label="@string/practical1_label"
+            android:parentActivityName=".p1.SenderActivity" />
+        <activity
+            android:name=".p1.SenderActivity"
+            android:label="@string/practical1_label"
+            android:parentActivityName=".p1.LoginActivity">
             <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/plain"/>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
         <activity
             android:name=".p1.LoginActivity"
+            android:label="Practical 1|2"
             android:parentActivityName=".PracticalOverviewActivity"
-            android:label="@string/practical1_label"
-            android:theme="@style/Theme.MAD_Practicals.NoActionBar"/>
+            android:theme="@style/Theme.MAD_Practicals.NoActionBar" />
         <activity
             android:name=".PracticalOverviewActivity"
             android:parentActivityName=".MainActivity" />

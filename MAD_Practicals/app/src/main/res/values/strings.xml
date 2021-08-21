@@ -4,4 +4,45 @@
     <string name="main_app_bar_image_cnt">main app bar image</string>
     <string name="practical1_label">Practical 1</string>
     <string name="login_image_content_desc">login image</string>
+    <string name="student_image_in_card_view">student image in card view</string>
+
+    <string-array name="student_name_list">
+        <item>Jeremie Huels</item>
+        <item>Destin Jerde</item>
+        <item>Modesto Olson</item>
+        <item>Jeffry Hagenes</item>
+        <item>Sadie Hermann</item>
+        <item>Tomas Bayer</item>
+        <item>Grace King</item>
+        <item>Barrett Watsica</item>
+        <item>Augusta Schmidt</item>
+        <item>Zoe Sporer</item>
+        <item>Yessenia Sawayn</item>
+        <item>Alysa Shields</item>
+        <item>Tianna Carroll</item>
+        <item>Santino Kautzer</item>
+        <item>Laurianne Shields</item>
+    </string-array>
+    <string-array name="student_address_list">
+        <item>7965 Charles Street, Bartlett, IL 60103</item>
+        <item>7865 Alderwood Street, Caldwell, NJ 07006</item>
+        <item>9453 Beach Ave., Catonsville, MD 21228</item>
+        <item>449 W. West Drive, Austin, MN 55912</item>
+        <item>9214 Glendale Rd., Griffin, GA 30223</item>
+        <item>134 Carpenter Ave., Olive Branch, MS 38654</item>
+        <item>2 Galvin St., Horn Lake, MS 38637</item>
+        <item>377 Philmont Lane, Highland Park, IL 60035</item>
+        <item>24 Manor Lane, Collierville, TN 38017</item>
+        <item>959 Coffee St., Cheshire, CT 06410</item>
+        <item>498 North Vine Lane, Poughkeepsie, NY 12601</item>
+        <item>307 Vernon Ave., Elgin, IL 60120</item>
+        <item>7869 High Point Street, Fairmont, WV 26554</item>
+        <item>609 County St., San Antonio, TX 78213</item>
+        <item>851 Lilac Lane, Fort Lauderdale, FL 33308</item>
+        <item>4 Pineknoll Street, Westford, MA 01886</item>
+        <item>647 Marconi Ave., Goldsboro, NC 27530</item>
+        <item>9036 Roberts Street, Lansdale, PA 19446</item>
+        <item>44 Brown Lane, Saratoga Springs, NY 12866</item>
+        <item>39 Alton Ave., Mount Prospect, IL 60056</item>
+    </string-array>
 </resources>

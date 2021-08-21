@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="student_img_list">
+        <item>@drawable/b1</item>
+        <item>@drawable/g1</item>
+        <item>@drawable/b5</item>
+        <item>@drawable/b3</item>
+        <item>@drawable/g2</item>
+        <item>@drawable/b4</item>
+        <item>@drawable/g3</item>
+        <item>@drawable/b2</item>
+        <item>@drawable/b6</item>
+        <item>@drawable/b7</item>
+        <item>@drawable/b8</item>
+        <item>@drawable/b9</item>
+        <item>@drawable/b10</item>
+        <item>@drawable/b11</item>
+        <item>@drawable/g4</item>
+    </array>
+</resources>

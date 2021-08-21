@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.mad.practicals.p1.LoginActivity;
+import com.mad.practicals.p2.StudentRecordsActivity;
 
 public class PracticalOverviewActivity extends AppCompatActivity {
 
@@ -17,7 +18,7 @@ public class PracticalOverviewActivity extends AppCompatActivity {
     }
 
     public void launch(View view){
-        Intent intent = new Intent(this, LoginActivity.class);
+        Intent intent = new Intent(this, StudentRecordsActivity.class);
         startActivity(intent);
     }
 }
