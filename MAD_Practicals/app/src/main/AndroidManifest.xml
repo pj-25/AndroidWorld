@@ -9,7 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MAD_Practicals">
-        <activity android:name=".p2.StudentRecordsActivity" android:label="Practical 2(.3)" android:parentActivityName=".PracticalOverviewActivity"></activity>
+        <activity android:name=".p2.StudentRecordsActivity"
+            android:label="Practical 2(.3)"
+            android:parentActivityName=".PracticalOverviewActivity"
+            android:theme="@style/Theme.MAD_Practicals" />
         <activity
             android:name=".p1.ReceiverActivity"
             android:label="@string/practical1_label"

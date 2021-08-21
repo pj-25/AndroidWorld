@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.mad.practicals.R;
 
@@ -15,6 +16,8 @@ public class StudentRecordsActivity extends AppCompatActivity {
 
     private static LinkedList<StudentRecord> studentRecords = null;
 
+    private TextView title;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,9 +25,19 @@ public class StudentRecordsActivity extends AppCompatActivity {
 
         loadData();
 
+        title = findViewById(R.id.student_list_title);
+        updateTitle(studentRecords.size());
+
         RecyclerView recyclerView = findViewById(R.id.student_recycler_view);
-        recyclerView.setAdapter(new StudentRecordsRecyclerAdapter(studentRecords));
+        recyclerView.setAdapter(new StudentRecordsRecyclerAdapter(studentRecords, pos -> {
+            updateTitle(studentRecords.size()-1);
+        }));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    public void updateTitle(int totalRecords){
+        String text = "Student Records("+ totalRecords +")";
+        title.setText(text);
     }
 
     public void loadData() {
