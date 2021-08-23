@@ -1,17 +1,32 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.MAD_Practicals" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.MAD_Practicals" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">#E91E63</item>
+        <item name="colorPrimary">@color/pink</item>
         <item name="colorPrimaryVariant">#ff5757</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">#03A9F4</item>
-        <item name="colorSecondaryVariant">#2196F3</item>
+        <item name="colorSecondary">@color/blue</item>
+        <item name="colorSecondaryVariant">@color/blue_var</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.Charcoal" parent="Theme.MAD_Practicals">
+        <item name="colorPrimary">@color/charcoal</item>
+        <item name="colorPrimaryVariant">@color/persian_green</item>
+    </style>
+
+    <style name="Theme.Crayola" parent="Theme.MAD_Practicals">
+        <item name="colorPrimary">@color/orange_yellow_crayola</item>
+        <item name="colorPrimaryVariant">@color/sandy_brown</item>
+    </style>
+
+    <style name="Theme.PrussianBlue" parent="Theme.MAD_Practicals">
+        <item name="colorPrimary">@color/prussian_blue</item>
+        <item name="colorPrimaryVariant">@color/maximum_red</item>
     </style>
 
     <style name="Theme.MAD_Practicals.NoActionBar">

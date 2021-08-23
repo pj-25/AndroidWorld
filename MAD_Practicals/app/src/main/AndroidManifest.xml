@@ -10,9 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MAD_Practicals">
         <activity android:name=".p2.StudentRecordsActivity"
-            android:label="Practical 2(.3)"
+            android:label="Practical 2(.3) | 3"
             android:parentActivityName=".PracticalOverviewActivity"
-            android:theme="@style/Theme.MAD_Practicals" />
+            android:theme="@style/Theme.MAD_Practicals.NoActionBar" />
         <activity
             android:name=".p1.ReceiverActivity"
             android:label="@string/practical1_label"
@@ -22,7 +22,7 @@
             android:label="@string/practical1_label"
             android:parentActivityName=".p1.LoginActivity">
             <intent-filter>
-                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND"/>
 
                 <category android:name="android.intent.category.DEFAULT" />
 

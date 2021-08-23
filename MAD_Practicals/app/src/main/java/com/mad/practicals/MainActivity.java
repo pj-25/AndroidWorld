@@ -65,12 +65,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int selectedItemId = item.getItemId();
-        switch (selectedItemId){
-            case R.id.teams_mad_link:
-                jumpToTeams();
-                break;
+        if (selectedItemId == R.id.teams_mad_link) {
+            jumpToTeams();
         }
-
         return super.onOptionsItemSelected(item);
     }
 

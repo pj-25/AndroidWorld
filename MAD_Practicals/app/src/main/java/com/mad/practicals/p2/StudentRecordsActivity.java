@@ -1,11 +1,17 @@
 package com.mad.practicals.p2;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.mad.practicals.R;
@@ -18,10 +24,17 @@ public class StudentRecordsActivity extends AppCompatActivity {
 
     private TextView title;
 
+    private static int currentTheme = R.style.Theme_MAD_Practicals;
+    private static final int []themeIds = { R.style.Theme_MAD_Practicals, R.style.Theme_Charcoal, R.style.Theme_Crayola, R.style.Theme_PrussianBlue};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(currentTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_records);
+
+        setSupportActionBar(findViewById(R.id.student_records_toolbar));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         loadData();
 
@@ -32,7 +45,45 @@ public class StudentRecordsActivity extends AppCompatActivity {
         recyclerView.setAdapter(new StudentRecordsRecyclerAdapter(studentRecords, pos -> {
             updateTitle(studentRecords.size()-1);
         }));
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        RecyclerView.LayoutManager layoutManager;
+        int orientation = getResources().getConfiguration().orientation;
+        layoutManager = (orientation == Configuration.ORIENTATION_PORTRAIT)? new LinearLayoutManager(this):new GridLayoutManager(this, 2);
+        recyclerView.setLayoutManager(layoutManager);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_theme, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.theme_option){
+            promptThemes();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void promptThemes(){
+        AlertDialog.Builder themePrompt = new AlertDialog.Builder(this);
+        themePrompt.setTitle("Select Theme");
+        final String []themeOptions = { "Default", "Charcoal", "Crayola", "Prussian Blue", "Cancel"};
+        themePrompt.setItems(themeOptions, (dialog, which) -> {
+            if(which==themeOptions.length-1){
+                dialog.dismiss();
+            }
+            else{
+                changeTheme(which);
+            }
+        });
+        themePrompt.show();
+    }
+
+    public void changeTheme(int themeCode){
+        currentTheme = themeIds[themeCode];
+        recreate();
     }
 
     public void updateTitle(int totalRecords){
