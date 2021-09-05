@@ -1,4 +1,4 @@
-package com.mad.practicals.p2;
+package com.mad.practicals.p2_3_5;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -49,6 +49,15 @@ public class StudentRecordsRecyclerAdapter extends RecyclerView.Adapter<StudentR
             studentRecords.remove(holder.getAdapterPosition());
             notifyItemRemoved(holder.getAdapterPosition());
         });
+    }
+
+    public LinkedList<StudentRecord> getStudentRecords() {
+        return studentRecords;
+    }
+
+    public void setStudentRecords(LinkedList<StudentRecord> studentRecords) {
+        this.studentRecords = studentRecords;
+        notifyDataSetChanged();
     }
 
     @Override

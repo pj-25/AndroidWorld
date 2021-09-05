@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".p2.StudentRecordsActivity">
+    tools:context=".p2_3_5.StudentRecordsActivity">
 
     <TextView
         android:id="@+id/student_list_title"
@@ -37,5 +37,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:menu="@menu/menu_theme"/>
+        app:menu="@menu/menu_student_records_activity"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

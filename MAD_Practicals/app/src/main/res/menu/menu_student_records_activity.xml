@@ -4,4 +4,7 @@
     <item
         android:id="@+id/theme_option"
         android:title="Theme" />
+    <item
+        android:id="@+id/menuitem_fetch"
+        android:title="Fetch Data" />
 </menu>

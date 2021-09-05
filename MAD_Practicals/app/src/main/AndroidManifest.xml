@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.mad.practicals">
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -8,19 +11,21 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MAD_Practicals">
-        <activity android:name=".p2.StudentRecordsActivity"
-            android:label="Practical 2(.3) | 3"
+        android:theme="@style/Theme.MAD_Practicals"
+        android:usesCleartextTraffic="true">
+
+        <activity android:name=".p2_3_5.StudentRecordsActivity"
+            android:label="Practical 2(.3) | 3 | 5"
             android:parentActivityName=".PracticalOverviewActivity"
             android:theme="@style/Theme.MAD_Practicals.NoActionBar" />
         <activity
-            android:name=".p1.ReceiverActivity"
+            android:name=".p1_3.ReceiverActivity"
             android:label="@string/practical1_label"
-            android:parentActivityName=".p1.SenderActivity" />
+            android:parentActivityName=".p1_3.SenderActivity" />
         <activity
-            android:name=".p1.SenderActivity"
+            android:name=".p1_3.SenderActivity"
             android:label="@string/practical1_label"
-            android:parentActivityName=".p1.LoginActivity">
+            android:parentActivityName=".p1_3.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
 
@@ -30,7 +35,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".p1.LoginActivity"
+            android:name=".p1_3.LoginActivity"
             android:label="Practical 1|2"
             android:parentActivityName=".PracticalOverviewActivity"
             android:theme="@style/Theme.MAD_Practicals.NoActionBar" />

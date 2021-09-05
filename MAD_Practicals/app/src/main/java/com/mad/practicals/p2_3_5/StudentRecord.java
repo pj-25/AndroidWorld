@@ -1,11 +1,18 @@
-package com.mad.practicals.p2;
+package com.mad.practicals.p2_3_5;
 
 
 import android.graphics.drawable.Drawable;
 
+import com.google.gson.annotations.SerializedName;
+
 public class StudentRecord {
+    @SerializedName("name")
     private String name;
+    @SerializedName("address")
     private String address;
+    @SerializedName("img_path")
+    private String imagePath;
+
     private Drawable image;
 
     public StudentRecord(String name, String address, Drawable image) {
@@ -28,6 +35,14 @@ public class StudentRecord {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public Drawable getImage() {

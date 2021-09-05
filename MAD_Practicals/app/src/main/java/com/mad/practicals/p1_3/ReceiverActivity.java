@@ -1,4 +1,4 @@
-package com.mad.practicals.p1;
+package com.mad.practicals.p1_3;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ShareCompat;
@@ -7,13 +7,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.mad.practicals.R;
 
 public class ReceiverActivity extends AppCompatActivity {

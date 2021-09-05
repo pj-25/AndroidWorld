@@ -1,4 +1,4 @@
-package com.mad.practicals.p1;
+package com.mad.practicals.p1_3;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;

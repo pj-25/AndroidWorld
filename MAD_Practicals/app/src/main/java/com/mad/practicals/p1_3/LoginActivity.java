@@ -1,8 +1,7 @@
-package com.mad.practicals.p1;
+package com.mad.practicals.p1_3;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
