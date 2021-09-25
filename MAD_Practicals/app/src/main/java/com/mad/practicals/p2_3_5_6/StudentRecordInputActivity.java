@@ -63,6 +63,7 @@ public class StudentRecordInputActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent.getExtras() != null){
+            setTitle("Edit Student Record");
             inputActionBtn.setText("EDIT");
             nameInput.setText(intent.getExtras().getString("STUDENT_NAME"));
             addressInput.setText(intent.getExtras().getString("STUDENT_ADDRESS"));

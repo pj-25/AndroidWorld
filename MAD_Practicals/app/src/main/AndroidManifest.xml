@@ -14,7 +14,10 @@
         android:theme="@style/Theme.MAD_Practicals"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".p2_3_5_6.StudentRecordInputActivity" android:label="Add Student Record" android:theme="@style/Theme.MAD_Practicals.ActionBar"/>
+        <activity android:name=".p2_3_5_6.StudentRecordInputActivity"
+            android:label="Add Student Record"
+            android:parentActivityName=".p2_3_5_6.StudentRecordsActivity"
+            android:theme="@style/Theme.MAD_Practicals.ActionBar"/>
         <activity
             android:name=".p2_3_5_6.StudentRecordsActivity"
             android:label="Practical 2(.3) | 3 | 5 | 6"
@@ -43,13 +46,14 @@
             android:theme="@style/Theme.MAD_Practicals.NoActionBar" />
         <activity
             android:name=".PracticalOverviewActivity"
-            android:parentActivityName=".MainActivity" android:theme="@style/Theme.MAD_Practicals.ActionBar"/>
+            android:label="Practical Info"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.MAD_Practicals.ActionBar"/>
         <activity
             android:name=".MainActivity"
             android:theme="@style/Theme.MAD_Practicals.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

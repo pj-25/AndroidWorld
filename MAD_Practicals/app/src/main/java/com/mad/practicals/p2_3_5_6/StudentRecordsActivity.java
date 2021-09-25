@@ -73,6 +73,7 @@ public class StudentRecordsActivity extends AppCompatActivity {
     private LoadRemoteDataTask loadRemoteDataTask;
     private FloatingActionButton addRecordsFab;
     private DatabaseReference studentDB;
+    private ChildEventListener childEventListener;
 
     private static int fetchType = -1;
     private static final int LOCAL_FETCH = 0;
@@ -241,7 +242,7 @@ public class StudentRecordsActivity extends AppCompatActivity {
     }
 
     public void fetchDataFromFirebase(){
-        if(fetchType == REMOTE_FETCH_FIREBASE){
+        if(fetchType == REMOTE_FETCH_FIREBASE && recyclerView.getAdapter()!=null){
             return;
         }
         addRecordsFab.show();
@@ -261,7 +262,7 @@ public class StudentRecordsActivity extends AppCompatActivity {
         if(studentDB == null){
             studentDB = FirebaseDatabase.getInstance().getReference("student");
         }
-        studentDB.addChildEventListener(new ChildEventListener() {
+        childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 StudentRecord studentRecord = snapshot.getValue(StudentRecord.class);
@@ -296,8 +297,8 @@ public class StudentRecordsActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
-
+        };
+        studentDB.addChildEventListener(childEventListener);
     }
 
     public void updateStudentRecord(StudentRecord updatedRecord){
@@ -469,5 +470,11 @@ public class StudentRecordsActivity extends AppCompatActivity {
         }
         isLocalDataLoaded = false;
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        studentDB.removeEventListener(childEventListener);
+        super.onDestroy();
     }
 }
