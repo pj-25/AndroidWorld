@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.mad.practicals.p2_3_5.StudentRecordsActivity;
+import com.mad.practicals.p2_3_5_6.StudentRecordsActivity;
 
 public class PracticalOverviewActivity extends AppCompatActivity {
 

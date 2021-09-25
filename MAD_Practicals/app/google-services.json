@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "49567976439",
+    "project_id": "blogholic-1bfb3",
+    "storage_bucket": "blogholic-1bfb3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:49567976439:android:27a94788ac7b6798f67cf2",
+        "android_client_info": {
+          "package_name": "com.mad.practicals"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "49567976439-f38v0g4v7irnc1fqejvmq98mck4mdl1c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyTwEk7B4IaG8kAOqs4gzybPr2xpDI8K4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "49567976439-f38v0g4v7irnc1fqejvmq98mck4mdl1c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

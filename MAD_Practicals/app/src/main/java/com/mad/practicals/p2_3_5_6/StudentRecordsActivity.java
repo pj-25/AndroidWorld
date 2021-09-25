@@ -1,4 +1,4 @@
-package com.mad.practicals.p2_3_5;
+package com.mad.practicals.p2_3_5_6;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,24 +10,39 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Adapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.mad.practicals.R;
-import com.mad.practicals.p2_3_5.remoteDataLoader.RemoteDataLoader;
-import com.mad.practicals.p2_3_5.retrofitConnection.RetrofitConnection;
-import com.mad.practicals.p2_3_5.retrofitConnection.StudentRecordsApi;
+import com.mad.practicals.p2_3_5_6.remoteDataLoader.RemoteDataLoader;
+import com.mad.practicals.p2_3_5_6.retrofitConnection.RetrofitConnection;
+import com.mad.practicals.p2_3_5_6.retrofitConnection.StudentRecordsApi;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +58,10 @@ import retrofit2.Response;
 
 public class StudentRecordsActivity extends AppCompatActivity {
 
-    private static final String REMOTE_BASE_URL = "http://studentrecords.us-east-2.elasticbeanstalk.com";
+    private static final String THEME_PREFERENCE = "THEME_PREF";
+    private static final String THEME_CODE_PREF = "THEME_CODE";
+
+    private static final String REMOTE_BASE_URL = "http://studentrecordsapi.us-east-2.elasticbeanstalk.com";
     private static final String FETCH_ALL_REQUEST = "/fetch_all.php";
 
     private static LinkedList<StudentRecord> studentRecords = null;
@@ -53,13 +71,25 @@ public class StudentRecordsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ProgressDialog progressDialog;
     private LoadRemoteDataTask loadRemoteDataTask;
+    private FloatingActionButton addRecordsFab;
+    private DatabaseReference studentDB;
 
-    private static int currentTheme = R.style.Theme_MAD_Practicals;
+    private static int fetchType = -1;
+    private static final int LOCAL_FETCH = 0;
+    private static final int REMOTE_FETCH_ASYNC = 1;
+    private static final int REMOTE_FETCH_RETROFIT = 2;
+    private static final int REMOTE_FETCH_FIREBASE = 3;
+
+    private static boolean themeChanged = false;
+    private static int currentThemeCode;
     private static final int []themeIds = { R.style.Theme_MAD_Practicals, R.style.Theme_Charcoal, R.style.Theme_Crayola, R.style.Theme_PrussianBlue};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(currentTheme);
+        if(!themeChanged){
+            currentThemeCode = getSharedPreferences(THEME_PREFERENCE, MODE_PRIVATE).getInt(THEME_CODE_PREF, 0);
+        }
+        setTheme(themeIds[currentThemeCode]);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_records);
 
@@ -74,13 +104,50 @@ public class StudentRecordsActivity extends AppCompatActivity {
         int orientation = getResources().getConfiguration().orientation;
         layoutManager = (orientation == Configuration.ORIENTATION_PORTRAIT)? new LinearLayoutManager(this):new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(layoutManager);
+
+        if(savedInstanceState!=null){
+            fetchType = savedInstanceState.getInt("FETCH_TYPE");
+            fetchData(fetchType);
+        }
+        addRecordsFab = ((FloatingActionButton)findViewById(R.id.add_records_fab));
+        addRecordsFab.hide();
+        addRecordsFab.setOnClickListener(v -> {
+            createStudentRecords();
+        });
+        progressDialog = new ProgressDialog(this);
+        studentRecords = new LinkedList<>();
     }
 
 
     @Override
     protected void onStart() {
-        promptFetchOptions();
+        if(fetchType==-1) {
+            promptFetchOptions();
+            themeChanged = false;
+        }
         super.onStart();
+    }
+
+    public void createStudentRecords(){
+        Intent srInputIntent = new Intent(this, StudentRecordInputActivity.class);
+        startActivity(srInputIntent);
+    }
+
+    public void fetchData(int fetchType){
+        switch(fetchType){
+            case LOCAL_FETCH:
+                fetchLocalData();
+                break;
+            case REMOTE_FETCH_ASYNC:
+                fetchRemoteDataUsingAsyncTask();
+                break;
+            case REMOTE_FETCH_RETROFIT:
+                fetchRemoteDataUsingRetrofit();
+                break;
+            case REMOTE_FETCH_FIREBASE:
+                fetchDataFromFirebase();
+                break;
+        }
     }
 
     @Override
@@ -103,41 +170,48 @@ public class StudentRecordsActivity extends AppCompatActivity {
         AlertDialog.Builder themePrompt = new AlertDialog.Builder(this);
         themePrompt.setTitle("Select Theme");
         final String []themeOptions = { "Default", "Charcoal", "Crayola", "Prussian Blue", "Cancel"};
-        themePrompt.setItems(themeOptions, (dialog, which) -> {
+        CheckBox checkBox = new CheckBox(this);
+        checkBox.setText("Save Preferences");
+        themePrompt.setView(checkBox);
+        themePrompt.setSingleChoiceItems(themeOptions,currentThemeCode, (dialog, which) -> {
             if(which==themeOptions.length-1){
                 dialog.dismiss();
             }
             else{
+                if(checkBox.isChecked()){
+                    saveThemePreferences(which);
+                }
                 changeTheme(which);
             }
         });
+
         themePrompt.show();
+    }
+
+    public void saveThemePreferences(int themeCode){
+        SharedPreferences sharedPreferences = getSharedPreferences(THEME_PREFERENCE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(THEME_CODE_PREF, themeCode);
+        editor.apply();
     }
 
     public void promptFetchOptions(){
         AlertDialog.Builder fetchPrompt = new AlertDialog.Builder(this);
         fetchPrompt.setTitle("Select fetch option");
-        final String []fetchOptions = {"Local", "Remote[Async Task]", "Remote[Retrofit]", "Cancel"};
+        final String []fetchOptions = {"Local", "Remote [Async Task]", "Remote [Retrofit]", "Remote [Firebase]", "Cancel"};
         fetchPrompt.setItems(fetchOptions, (dialog, which) -> {
-            switch (which){
-                case 0:
-                    fetchLocalData();
-                    break;
-                case 1:
-                    fetchRemoteDataUsingAsyncTask();
-                    break;
-                case 2:
-                    fetchRemoteDataUsingRetrofit();
-                    break;
-                default:
-                    dialog.dismiss();
+            if(which>3){
+                dialog.dismiss();
+            }else{
+                fetchData(which);
             }
         });
         fetchPrompt.show();
     }
     
     public void changeTheme(int themeCode){
-        currentTheme = themeIds[themeCode];
+        currentThemeCode = themeCode;
+        themeChanged = true;
         recreate();
     }
 
@@ -147,6 +221,8 @@ public class StudentRecordsActivity extends AppCompatActivity {
     }
 
     public void fetchLocalData() {
+        fetchType = LOCAL_FETCH;
+        addRecordsFab.hide();
         if(studentRecords == null || !isLocalDataLoaded){
             studentRecords = new LinkedList<>();
             String []nameArray = getResources().getStringArray(R.array.student_name_list);
@@ -164,12 +240,102 @@ public class StudentRecordsActivity extends AppCompatActivity {
         }
     }
 
+    public void fetchDataFromFirebase(){
+        if(fetchType == REMOTE_FETCH_FIREBASE){
+            return;
+        }
+        addRecordsFab.show();
+        fetchType = REMOTE_FETCH_FIREBASE;
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Fetching Remote Data [Firebase]");
+        progressDialog.setMessage("Please wait!");
+        progressDialog.show();
+
+        recyclerView.setAdapter(new StudentRecordsRecyclerAdapter(studentRecords, pos -> {
+            updateTitle(studentRecords.size()-1, "Remote [Firebase]");
+            studentDB.child(studentRecords.get(pos).getKey()).removeValue();
+        }));
+        isLocalDataLoaded = false;
+        StudentRecordsRecyclerAdapter adapter = (StudentRecordsRecyclerAdapter)recyclerView.getAdapter();
+        if(studentDB == null){
+            studentDB = FirebaseDatabase.getInstance().getReference("student");
+        }
+        studentDB.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                StudentRecord studentRecord = snapshot.getValue(StudentRecord.class);
+                studentRecord.setKey(snapshot.getKey());
+                studentRecords.addFirst(studentRecord);
+                adapter.notifyItemInserted(0);
+                recyclerView.scrollToPosition(0);
+                updateTitle(studentRecords.size(), "Remote[Firebase]");
+                if(progressDialog.isShowing()){
+                    progressDialog.dismiss();
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                StudentRecord studentRecord = snapshot.getValue(StudentRecord.class);
+                studentRecord.setKey(snapshot.getKey());
+                updateStudentRecord(studentRecord);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                deleteStudentRecord(snapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+
+    public void updateStudentRecord(StudentRecord updatedRecord){
+        int i=0;
+        for(StudentRecord studentRecord:studentRecords){
+            if(studentRecord.getKey().equals(updatedRecord.getKey())){
+                studentRecords.set(i, updatedRecord);
+                recyclerView.getAdapter().notifyItemChanged(i);
+                break;
+            }
+            i++;
+        }
+    }
+
+    public void deleteStudentRecord(String key){
+        int i=0;
+        for(StudentRecord studentRecord: studentRecords){
+            if(studentRecord.getKey().equals(key)){
+                studentRecords.remove(i);
+                recyclerView.getAdapter().notifyItemRemoved(i);
+                updateTitle(studentRecords.size(), "Remote[Firebase]");
+                FirebaseStorage.getInstance().getReferenceFromUrl(studentRecord.getImagePath()).delete();
+                break;
+            }
+            i++;
+        }
+    }
+
     public void fetchRemoteDataUsingAsyncTask(){
+        fetchType = REMOTE_FETCH_ASYNC;
+        addRecordsFab.hide();
         loadRemoteDataTask = new LoadRemoteDataTask();
         loadRemoteDataTask.execute(REMOTE_BASE_URL, FETCH_ALL_REQUEST);
     }
 
     public void fetchRemoteDataUsingRetrofit(){
+        fetchType = REMOTE_FETCH_RETROFIT;
+        addRecordsFab.hide();
         Call<LinkedList<StudentRecord>> call = RetrofitConnection.getInstance().getStudentRecordsApi().fetchAll();
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Remote Data Fetch [Retrofit]");
@@ -181,6 +347,8 @@ public class StudentRecordsActivity extends AppCompatActivity {
                 LinkedList<StudentRecord> newStudentRecords = response.body();
                 if(newStudentRecords!=null) {
                     for(StudentRecord studentRecord: newStudentRecords){
+                        studentRecord.setImagePath(StudentRecordsApi.BASE_URL+"/"+studentRecord.getImagePath());
+                        /*
                         Glide.with(StudentRecordsActivity.this)
                                 .load(StudentRecordsApi.BASE_URL+"/"+studentRecord.getImagePath())
                                 .into(new CustomTarget<Drawable>() {
@@ -203,6 +371,14 @@ public class StudentRecordsActivity extends AppCompatActivity {
 
                                     }
                                 });
+                         */
+                        studentRecords = newStudentRecords;
+                        updateTitle(studentRecords.size(), "Remote [Retrofit]");
+                        recyclerView.setAdapter(new StudentRecordsRecyclerAdapter(studentRecords, pos -> {
+                            updateTitle(studentRecords.size()-1, "Remote [Retrofit]");
+                        }));
+                        isLocalDataLoaded = false;
+                        progressDialog.dismiss();
                     }
                 }
                 else{
@@ -218,7 +394,7 @@ public class StudentRecordsActivity extends AppCompatActivity {
             }
 
             public void displayError(){
-                Toast.makeText(StudentRecordsActivity.this, "No Internet Connection :(\nUnable to fetch data using retrofit :(", Toast.LENGTH_SHORT).show();
+                Toast.makeText(StudentRecordsActivity.this, "Server Down / Please check Internet Connection :(\nUnable to fetch data using retrofit :(", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -239,7 +415,8 @@ public class StudentRecordsActivity extends AppCompatActivity {
                 for(int i=0;i<jsonArray.length();i++){
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     String imagePath = jsonObject.getString("img_path");
-                    jsonObject.put("image", remoteDataLoader.getDrawable(new URL(url[0]+"/"+imagePath)));
+                    jsonObject.put("img_path", url[0]+"/"+imagePath);
+                    //jsonObject.put("image", remoteDataLoader.getDrawable(new URL(url[0]+"/"+imagePath)));
                 }
                 return jsonArray;
             } catch (IOException ioException) {
@@ -257,7 +434,8 @@ public class StudentRecordsActivity extends AppCompatActivity {
                 try {
                     for(int i=0;i<jsonArray.length();i++){
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        newStudentRecords.addLast(new StudentRecord(jsonObject.getString("name"), jsonObject.getString("address"), (Drawable)jsonObject.get("image")));
+                        //newStudentRecords.addLast(new StudentRecord(jsonObject.getString("name"), jsonObject.getString("address"), (Drawable)jsonObject.get("image")));
+                        newStudentRecords.addLast(new StudentRecord(jsonObject.getString("name"), jsonObject.getString("address"), jsonObject.getString("img_path")));
                     }
                     studentRecords = newStudentRecords;
                     updateTitle(studentRecords.size(), "Remote [Async Task]");
@@ -269,10 +447,18 @@ public class StudentRecordsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }else{
-                Toast.makeText(StudentRecordsActivity.this, "No Internet Connection :( \nUnable to load data using async task", Toast.LENGTH_SHORT).show();
+                Toast.makeText(StudentRecordsActivity.this, "Server down / Please check Internet Connection :( \nUnable to load data using async task", Toast.LENGTH_SHORT).show();
             }
             progressDialog.dismiss();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        if(fetchType!=-1){
+            outState.putInt("FETCH_TYPE", fetchType);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override

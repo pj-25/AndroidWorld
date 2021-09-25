@@ -1,4 +1,4 @@
-package com.mad.practicals.p2_3_5.retrofitConnection;
+package com.mad.practicals.p2_3_5_6.retrofitConnection;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

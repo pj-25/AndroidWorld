@@ -1,4 +1,4 @@
-package com.mad.practicals.p2_3_5.remoteDataLoader;
+package com.mad.practicals.p2_3_5_6.remoteDataLoader;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;

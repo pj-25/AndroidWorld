@@ -35,14 +35,14 @@
             android:id="@+id/student_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@id/delete_action_btn"
+            android:layout_above="@id/delete_record_btn"
             android:layout_below="@id/student_name"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@id/divider3"
             android:text="TextView" />
 
         <ImageView
-            android:id="@+id/delete_action_btn"
+            android:id="@+id/delete_record_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -61,6 +61,18 @@
             android:layout_marginRight="8dp"
             android:layout_toRightOf="@id/student_img"
             android:background="?android:attr/listDivider" />
+
+        <ImageView
+            android:id="@+id/edit_record_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="0dp"
+            android:layout_toStartOf="@+id/delete_record_btn"
+            android:layout_toLeftOf="@+id/delete_record_btn"
+            app:srcCompat="@drawable/ic_action_edit" />
     </RelativeLayout>
 
 </androidx.cardview.widget.CardView>

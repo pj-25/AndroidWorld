@@ -1,6 +1,8 @@
-package com.mad.practicals.p2_3_5;
+package com.mad.practicals.p2_3_5_6;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -9,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.mad.practicals.R;
 
 import java.util.LinkedList;
@@ -41,8 +44,28 @@ public class StudentRecordsRecyclerAdapter extends RecyclerView.Adapter<StudentR
         StudentRecord studentRecord = studentRecords.get(position);
         name.setText(studentRecord.getName());
         address.setText(studentRecord.getAddress());
-        img.setImageDrawable(studentRecord.getImage());
-        holder.studentInfoCardView.findViewById(R.id.delete_action_btn).setOnClickListener(v -> {
+        ImageView editActionBtn = holder.studentInfoCardView.findViewById(R.id.edit_record_btn);
+
+        if(studentRecord.getImage()!=null){
+            img.setImageDrawable(studentRecord.getImage());
+            editActionBtn.setVisibility(View.INVISIBLE);
+
+        }else{
+            Glide.with(img.getContext()).load(studentRecord.getImagePath()).placeholder(R.drawable.loading).into(img);
+            if(studentRecord.getKey()!=null){
+                editActionBtn.setOnClickListener(v -> {
+                    Intent intent = new Intent(editActionBtn.getContext(), StudentRecordInputActivity.class);
+                    intent.putExtra("KEY", studentRecord.getKey());
+                    intent.putExtra("STUDENT_NAME", studentRecord.getName());
+                    intent.putExtra("STUDENT_ADDRESS", studentRecord.getAddress());
+                    intent.putExtra("IMAGE_PATH", studentRecord.getImagePath());
+                    editActionBtn.getContext().startActivity(intent);
+                });
+            }else{
+                editActionBtn.setVisibility(View.INVISIBLE);
+            }
+        }
+        holder.studentInfoCardView.findViewById(R.id.delete_record_btn).setOnClickListener(v -> {
             if(onDeleteListener!=null){
                 onDeleteListener.onDelete(holder.getAdapterPosition());
             }
@@ -86,4 +109,5 @@ public class StudentRecordsRecyclerAdapter extends RecyclerView.Adapter<StudentR
     public interface OnDeleteListener{
         void onDelete(int pos);
     }
+
 }
