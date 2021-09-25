@@ -98,25 +98,27 @@ public class StudentRecordsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         title = findViewById(R.id.student_list_title);
-
         recyclerView = findViewById(R.id.student_recycler_view);
-
-        RecyclerView.LayoutManager layoutManager;
-        int orientation = getResources().getConfiguration().orientation;
-        layoutManager = (orientation == Configuration.ORIENTATION_PORTRAIT)? new LinearLayoutManager(this):new GridLayoutManager(this, 2);
-        recyclerView.setLayoutManager(layoutManager);
-
-        if(savedInstanceState!=null){
-            fetchType = savedInstanceState.getInt("FETCH_TYPE");
-            fetchData(fetchType);
-        }
         addRecordsFab = ((FloatingActionButton)findViewById(R.id.add_records_fab));
         addRecordsFab.hide();
         addRecordsFab.setOnClickListener(v -> {
             createStudentRecords();
         });
+
+        RecyclerView.LayoutManager layoutManager;
+        int orientation = getResources().getConfiguration().orientation;
+        layoutManager = (orientation == Configuration.ORIENTATION_PORTRAIT)? new LinearLayoutManager(this):new GridLayoutManager(this, 2);
+        recyclerView.setLayoutManager(layoutManager);
         progressDialog = new ProgressDialog(this);
-        studentRecords = new LinkedList<>();
+
+        if(savedInstanceState!=null){
+            fetchType = savedInstanceState.getInt("FETCH_TYPE");
+            if(studentRecords==null){
+                fetchData(fetchType);
+            }else{
+                loadDataIntoRecyclerView();
+            }
+        }
     }
 
 
@@ -151,6 +153,12 @@ public class StudentRecordsActivity extends AppCompatActivity {
         }
     }
 
+    public void loadDataIntoRecyclerView(){
+        if(studentRecords!=null){
+            recyclerView.setAdapter(new StudentRecordsRecyclerAdapter(studentRecords, pos->updateTitle(studentRecords.size()-1)));
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_student_records_activity, menu);
@@ -175,15 +183,11 @@ public class StudentRecordsActivity extends AppCompatActivity {
         checkBox.setText("Save Preferences");
         themePrompt.setView(checkBox);
         themePrompt.setSingleChoiceItems(themeOptions,currentThemeCode, (dialog, which) -> {
-            if(which==themeOptions.length-1){
-                dialog.dismiss();
+            if( which != themeOptions.length-1 && checkBox.isChecked()){
+                saveThemePreferences(which);
             }
-            else{
-                if(checkBox.isChecked()){
-                    saveThemePreferences(which);
-                }
-                changeTheme(which);
-            }
+            dialog.dismiss();
+            changeTheme(which);
         });
 
         themePrompt.show();
@@ -221,6 +225,24 @@ public class StudentRecordsActivity extends AppCompatActivity {
         title.setText(text);
     }
 
+    public void updateTitle(int totalRecords){
+        String type ="";
+        switch (fetchType){
+            case LOCAL_FETCH:
+                type= "Local";
+                break;
+            case REMOTE_FETCH_ASYNC:
+                type="Remote [Async]";
+                break;
+            case REMOTE_FETCH_RETROFIT:
+                type = "Remote [Retrofit]";
+                break;
+            case REMOTE_FETCH_FIREBASE:
+                type= "Remote [Firebase]";
+        }
+        updateTitle(totalRecords, type);
+    }
+
     public void fetchLocalData() {
         fetchType = LOCAL_FETCH;
         addRecordsFab.hide();
@@ -233,10 +255,7 @@ public class StudentRecordsActivity extends AppCompatActivity {
                 studentRecords.addLast(new StudentRecord(nameArray[i], addressArray[i], imageArray.getDrawable(i)));
             }
             imageArray.recycle();
-            updateTitle(studentRecords.size(), "Local");
-            recyclerView.setAdapter(new StudentRecordsRecyclerAdapter(studentRecords, pos -> {
-                updateTitle(studentRecords.size()-1, "Local");
-            }));
+            loadDataIntoRecyclerView();
             isLocalDataLoaded = true;
         }
     }
@@ -253,6 +272,7 @@ public class StudentRecordsActivity extends AppCompatActivity {
         progressDialog.setMessage("Please wait!");
         progressDialog.show();
 
+        studentRecords = new LinkedList<>();
         recyclerView.setAdapter(new StudentRecordsRecyclerAdapter(studentRecords, pos -> {
             updateTitle(studentRecords.size()-1, "Remote [Firebase]");
             studentDB.child(studentRecords.get(pos).getKey()).removeValue();
