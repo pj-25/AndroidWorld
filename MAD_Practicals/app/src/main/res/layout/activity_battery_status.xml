@@ -5,18 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="8dp"
-    tools:context=".p7.BatteryStatusActivity">
+    tools:context=".p7_8.BatteryStatusActivity">
 
     <ImageView
         android:id="@+id/battery_status_img"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="500dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginLeft="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/p7Title"
-        app:srcCompat="@drawable/high_battery" />
+        app:srcCompat="@drawable/battery_level_0"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"/>
 
     <TextView
         android:id="@+id/battery_percentage"

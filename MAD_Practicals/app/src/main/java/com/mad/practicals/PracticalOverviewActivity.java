@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.mad.practicals.p2_3_5_6.StudentRecordsActivity;
-import com.mad.practicals.p7.BatteryStatusActivity;
+import com.mad.practicals.p7_8.BatteryStatusActivity;
+import com.mad.practicals.p8.Practical8Activity;
 
 public class PracticalOverviewActivity extends AppCompatActivity {
 
@@ -18,7 +18,7 @@ public class PracticalOverviewActivity extends AppCompatActivity {
     }
 
     public void launch(View view){
-        Intent intent = new Intent(this, BatteryStatusActivity.class);
+        Intent intent = new Intent(this, Practical8Activity.class);
         startActivity(intent);
     }
 }

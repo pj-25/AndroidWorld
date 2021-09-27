@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.mad.practicals">
+    package="com.mad.practicals" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -14,12 +16,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MAD_Practicals"
         android:usesCleartextTraffic="true"
-        tools:targetApi="m">
+        tools:targetApi="m" >
         <activity
-            android:name=".p7.BatteryStatusActivity"
-            android:label="Practical 7"
+            android:name=".p8.Practical8Activity"
+            android:label="Practical 8.(1|2)"
             android:theme="@style/Theme.MAD_Practicals.ActionBar"
-            android:parentActivityName=".PracticalOverviewActivity" />
+            android:parentActivityName=".PracticalOverviewActivity"
+            android:exported="true" />
+        <activity
+            android:name=".p7_8.BatteryStatusActivity"
+            android:label="Practical 7 | 8.3"
+            android:parentActivityName=".PracticalOverviewActivity"
+            android:theme="@style/Theme.MAD_Practicals.ActionBar" />
         <activity
             android:name=".p2_3_5_6.StudentRecordInputActivity"
             android:label="Add Student Record"
@@ -37,7 +45,7 @@
         <activity
             android:name=".p1_3.SenderActivity"
             android:label="@string/practical1_label"
-            android:parentActivityName=".p1_3.LoginActivity">
+            android:parentActivityName=".p1_3.LoginActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -58,7 +66,7 @@
             android:theme="@style/Theme.MAD_Practicals.ActionBar" />
         <activity
             android:name=".MainActivity"
-            android:theme="@style/Theme.MAD_Practicals.NoActionBar">
+            android:theme="@style/Theme.MAD_Practicals.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -70,7 +78,7 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.contentprovider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true" >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
