@@ -24,7 +24,7 @@ public class BlogholicSQLiteHelper extends SQLiteOpenHelper {
     public static final int DB_VER = 1;
     public static final String DB_NAME = "blogholic";
 
-    public BlogholicSQLiteHelper(Context context){
+    public  BlogholicSQLiteHelper(Context context){
         super(context, DB_NAME, null, DB_VER);
     }
 

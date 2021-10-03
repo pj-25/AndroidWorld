@@ -1,5 +1,6 @@
 package com.mad.practicals.p2_3_5_6;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,6 +79,7 @@ public class StudentRecordsRecyclerAdapter extends RecyclerView.Adapter<StudentR
         return studentRecords;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setStudentRecords(LinkedList<StudentRecord> studentRecords) {
         this.studentRecords = studentRecords;
         notifyDataSetChanged();
