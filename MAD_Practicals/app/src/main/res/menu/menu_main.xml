@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.mad.practicals.MainActivity">
     <item
+        android:id="@+id/github_link"
+        android:icon="@drawable/github_mark_light_64px"
+        android:orderInCategory="5"
+        android:title="GitHub"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_settings"
         android:enabled="false"
         android:orderInCategory="100"

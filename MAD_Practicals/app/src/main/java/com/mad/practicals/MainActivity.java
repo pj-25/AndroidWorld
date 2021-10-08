@@ -4,11 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityOptionsCompat;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -23,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -98,13 +95,24 @@ public class MainActivity extends AppCompatActivity {
         int selectedItemId = item.getItemId();
         if (selectedItemId == R.id.teams_mad_link) {
             jumpToTeams();
+        }else if(selectedItemId == R.id.github_link){
+            jumpToGitHub();
         }
         return super.onOptionsItemSelected(item);
     }
 
+
+    private void jumpToUrl(String url){
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(intent);
+    }
+
+    private void jumpToGitHub() {
+        jumpToUrl("https://github.com/pj-25/AndroidWorld");
+    }
+
     public void jumpToTeams(){
-        Intent teamsIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://teams.microsoft.com/l/channel/19%3a1VW6-vZbvP7tcCVMTlz1YFYfo6zI-atm_XDdW4LP3yg1%40thread.tacv2/General?groupId=ec3e36a3-f1f4-4e0e-8b55-ecc34cf7a2e2&tenantId=c8bb283e-4f46-4285-aafc-e97e0952ebd0"));
-        startActivity(teamsIntent);
+        jumpToUrl("https://teams.microsoft.com/l/channel/19%3a1VW6-vZbvP7tcCVMTlz1YFYfo6zI-atm_XDdW4LP3yg1%40thread.tacv2/General?groupId=ec3e36a3-f1f4-4e0e-8b55-ecc34cf7a2e2&tenantId=c8bb283e-4f46-4285-aafc-e97e0952ebd0");
     }
 
     public void startPracticalOverview(int id, View view){
