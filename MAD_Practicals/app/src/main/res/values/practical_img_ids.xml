@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer-array name="practical_img_ids">
+        <item>@drawable/smartphone</item>
+        <item>@drawable/layout</item>
+        <item>@drawable/ui_design_theme</item>
+        <item>@drawable/ic_blogholic_logo</item>
+        <item>@drawable/remote_access</item>
+        <item>@drawable/firebase_logo</item>
+        <item>@drawable/notification</item>
+        <item>@drawable/mobile_media</item>
+        <item>@drawable/chitchat_logo</item>
+    </integer-array>
+</resources>

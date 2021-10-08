@@ -21,7 +21,6 @@
             android:exported="true" />
         <activity
             android:name=".chatList.MainActivity"
-            android:exported="true"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.Chitchat.NoActionBar" />
         <activity
@@ -30,7 +29,6 @@
             android:theme="@style/Theme.chitchat.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -1,26 +1,43 @@
 package com.mad.practicals;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityOptionsCompat;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityOptions;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private int gifChoice = 0;
     private boolean wasCollapsed;
+
     private static final int []gifResources = {R.raw.android_logo1, R.raw.android_logo2, R.raw.android_logo3, R.raw.android_logo4, R.raw.android_logo5, R.raw.android_logo6};
+    public static ArrayList<PracticalInfo> practicalInfos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         loadAppBarGIF();
+        ListView practicalListView = findViewById(R.id.practical_list_view);
 
         AppBarLayout appBarLayout = findViewById(R.id.appbar);
         appBarLayout.addOnOffsetChangedListener((appBarLayout1, verticalOffset) -> {
@@ -43,10 +61,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton floatingActionButton = findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(v -> {
-            startPracticalOverview();
+        loadPracticalInfo();
+        practicalListView.setAdapter(new PracticalListAdapter(this, R.layout.practical_list_row_layout, practicalInfos));
+        practicalListView.setOnItemClickListener((parent, view, position, id) -> {
+            startPracticalOverview(position, view);
         });
+    }
+
+    void loadPracticalInfo(){
+        String[] aims = getResources().getStringArray(R.array.practical_aims);
+        String[] launchers = getResources().getStringArray(R.array.practical_launchers);
+        TypedArray imgIds = getResources().obtainTypedArray(R.array.practical_img_ids);
+        practicalInfos = new ArrayList<>(launchers.length);
+        for(int i=0;i<launchers.length;i++){
+            practicalInfos.add(new PracticalInfo(i, "Practical: "+(i+1), aims[i], launchers[i], imgIds.getResourceId(i, 0)));
+        }
+        imgIds.recycle();
+        Log.d("DATA", practicalInfos.toString());
     }
 
     void loadAppBarGIF(){
@@ -76,8 +107,42 @@ public class MainActivity extends AppCompatActivity {
         startActivity(teamsIntent);
     }
 
-    public void startPracticalOverview(){
+    public void startPracticalOverview(int id, View view){
         Intent intent = new Intent(this, PracticalOverviewActivity.class);
+        intent.putExtra(PracticalOverviewActivity.PRACTICAL_ID, id);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view.findViewById(R.id.practical_row_img), "practical_img");
+        startActivity(intent, options.toBundle());
+    }
+
+    public void startPracticalOverview(int id){
+        Intent intent = new Intent(this, PracticalOverviewActivity.class);
+        intent.putExtra(PracticalOverviewActivity.PRACTICAL_ID, id);
         startActivity(intent);
+    }
+
+    public static class PracticalListAdapter extends ArrayAdapter<PracticalInfo>{
+
+        private int rowLayout;
+
+        public PracticalListAdapter(@NonNull Context context, int resource, @NonNull ArrayList<PracticalInfo> data) {
+            super(context, resource, data);
+            rowLayout = resource;
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            @SuppressLint("ViewHolder") View rowView = LayoutInflater.from(parent.getContext()).inflate(rowLayout, parent, false);
+            ImageView practicalImg = rowView.findViewById(R.id.practical_row_img);
+            practicalImg.setImageResource(getItem(position).getImgId());
+            TextView practicalLabel = rowView.findViewById(R.id.practical_row_label);
+            practicalLabel.setText(getItem(position).getLabel());
+            return rowView;
+        }
+
+        public static class ViewHolder {
+            private ImageView practicalImg;
+            private TextView practicalLabel;
+        }
     }
 }

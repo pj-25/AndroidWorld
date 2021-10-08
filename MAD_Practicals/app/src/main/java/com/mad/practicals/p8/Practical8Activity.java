@@ -29,6 +29,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.mad.practicals.R;
+import com.mad.practicals.p7_8.BatteryStatusActivity;
 
 public class Practical8Activity extends AppCompatActivity {
 
@@ -169,6 +170,11 @@ public class Practical8Activity extends AppCompatActivity {
                 locationTxtView.setText(loc);
             });
         }
+    }
+
+    public void showAnimation(View view){
+        Intent intent = new Intent(this, BatteryStatusActivity.class);
+        startActivity(intent);
     }
 
     @Override

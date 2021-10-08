@@ -7,7 +7,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
+    <queries>
+        <package android:name="com.app.blogholic"/>
+        <package android:name="com.app.chitchat"/>
+    </queries>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -21,12 +24,12 @@
             android:name=".p8.Practical8Activity"
             android:label="Practical 8.(1|2)"
             android:theme="@style/Theme.MAD_Practicals.ActionBar"
-            android:parentActivityName=".PracticalOverviewActivity"
+            android:parentActivityName=".MainActivity"
             android:exported="true" />
         <activity
             android:name=".p7_8.BatteryStatusActivity"
             android:label="Practical 7 | 8.3"
-            android:parentActivityName=".PracticalOverviewActivity"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.MAD_Practicals.ActionBar" />
         <activity
             android:name=".p2_3_5_6.StudentRecordInputActivity"
@@ -36,16 +39,17 @@
         <activity
             android:name=".p2_3_5_6.StudentRecordsActivity"
             android:label="Practical 2(.3) | 3 | 5 | 6"
-            android:parentActivityName=".PracticalOverviewActivity"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.MAD_Practicals.NoActionBar" />
         <activity
-            android:name=".p1_3.ReceiverActivity"
+            android:name=".p1_2.ReceiverActivity"
             android:label="@string/practical1_label"
-            android:parentActivityName=".p1_3.SenderActivity" />
+            android:parentActivityName=".p1_2.SenderActivity"
+            android:theme="@style/Theme.MAD_Practicals.ActionBar" />
         <activity
-            android:name=".p1_3.SenderActivity"
+            android:name=".p1_2.SenderActivity"
             android:label="@string/practical1_label"
-            android:parentActivityName=".p1_3.LoginActivity" >
+            android:theme="@style/Theme.MAD_Practicals.ActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -55,9 +59,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".p1_3.LoginActivity"
+            android:name=".p1_2.LoginActivity"
             android:label="Practical 1|2"
-            android:parentActivityName=".PracticalOverviewActivity"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.MAD_Practicals.NoActionBar" />
         <activity
             android:name=".PracticalOverviewActivity"

@@ -2,7 +2,6 @@ package com.mad.practicals.p1_2;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +17,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
 import com.mad.practicals.R;
+import com.mad.practicals.p2_3_5_6.StudentRecordsActivity;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText emailIdField;
@@ -26,6 +26,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private static int currentLayoutChoice = R.id.menu_relative;
     private static int currentLayout = R.layout.activity_login_relative;
+
+    private static final String PRACTICAL_ID = "pid";
+    private int pid = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,9 @@ public class LoginActivity extends AppCompatActivity {
 
         emailIdField = findViewById(R.id.emailId);
         passwordField = findViewById(R.id.password);
+        if(getIntent()!=null){
+            pid = getIntent().getIntExtra(PRACTICAL_ID, -1);
+        }
     }
 
     @Override
@@ -85,8 +91,15 @@ public class LoginActivity extends AppCompatActivity {
             passwordField.requestFocus();
         }else{
             Snackbar.make(view, "Login successfully :)", Snackbar.LENGTH_LONG).show();
-            Intent sendIntent = new Intent(this, SenderActivity.class);     //Explicit intent
-            startActivity(sendIntent);
+            if(pid!=-1) {
+                Intent sendIntent;
+                if (pid == 0) {
+                    sendIntent = new Intent(this, SenderActivity.class);     //Explicit intent
+                } else {
+                    sendIntent = new Intent(this, StudentRecordsActivity.class);
+                }
+                startActivity(sendIntent);
+            }
         }
     }
 

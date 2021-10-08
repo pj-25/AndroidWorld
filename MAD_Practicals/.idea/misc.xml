@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../../../../../layout/custom_preview.xml" value="0.221875" />
         <entry key="..\:/work files/sem7/MAD/AndroidWorld/MAD_Practicals/app/src/main/res/drawable/battery_level_0.xml" value="0.21875" />
         <entry key="..\:/work files/sem7/MAD/AndroidWorld/MAD_Practicals/app/src/main/res/drawable/battery_level_1.xml" value="0.21875" />
         <entry key="..\:/work files/sem7/MAD/AndroidWorld/MAD_Practicals/app/src/main/res/drawable/battery_level_2.xml" value="0.21875" />
@@ -11,6 +12,14 @@
         <entry key="..\:/work files/sem7/MAD/AndroidWorld/MAD_Practicals/app/src/main/res/drawable/battery_level_5.xml" value="0.21875" />
         <entry key="..\:/work files/sem7/MAD/AndroidWorld/MAD_Practicals/app/src/main/res/layout/activity_battery_status.xml" value="0.25" />
         <entry key="..\:/work files/sem7/MAD/AndroidWorld/MAD_Practicals/app/src/main/res/layout/activity_practical8.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.20993227990970656" />
+        <entry key="app/src/main/res/layout/activity_practical8.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_practical_overview.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/activity_receiver.xml" value="0.14673913043478262" />
+        <entry key="app/src/main/res/layout/activity_sender.xml" value="0.14673913043478262" />
+        <entry key="app/src/main/res/layout/practical_list_row.xml" value="0.2" />
+        <entry key="app/src/main/res/layout/practical_list_row_layout.xml" value="0.25" />
+        <entry key="app/src/main/res/menu/menu_main.xml" value="0.19375" />
       </map>
     </option>
   </component>

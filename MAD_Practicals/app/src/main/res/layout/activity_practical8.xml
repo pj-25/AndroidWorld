@@ -12,7 +12,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
@@ -185,7 +185,7 @@
                 android:padding="8dp"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:text="Location Service - Your Location"
+                android:text="8.2: Location Service - Your Location"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -195,6 +195,25 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:text="Latitude: - ,  Longitude: -" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:background="#2196F3"
+                android:padding="8dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="8.3: Use of Animation"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:onClick="showAnimation"
+                android:text="Open" />
 
         </LinearLayout>
     </ScrollView>

@@ -1,5 +1,6 @@
 package com.mad.practicals.p7_8;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -15,6 +16,7 @@ import android.os.BatteryManager;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mad.practicals.BuildConfig;
 import com.mad.practicals.R;
@@ -68,6 +70,18 @@ public class BatteryStatusActivity extends AppCompatActivity {
 
         registerBatteryStatusReceiver();
         createNotificationChannel();
+    }
+
+    @Override
+    protected void onStart() {
+        new AlertDialog.Builder(this)
+                .setTitle("Help")
+                .setMessage("Plugin power supply to see magic ;)")
+                .setPositiveButton("Ok", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+        super.onStart();
     }
 
     public void showNotification(String msg){

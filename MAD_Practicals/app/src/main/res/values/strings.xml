@@ -45,4 +45,75 @@
         <item>44 Brown Lane, Saratoga Springs, NY 12866</item>
         <item>39 Alton Ave., Mount Prospect, IL 60056</item>
     </string-array>
+    <string-array name="practical_aims">
+        <item>
+            Develop and Mobile Application for following topic\n
+            \t1. Design Login activity and implement control events : Use EditText, Checkbox and Buttons\n
+            \t2. Create Activities and implement following\n
+                \t\ti. Implicit intent\n
+                \t\tii. Explicit Intent\n
+                \t\tiii. StartActivityForResult\n
+            \t3. Implement activity Lifecycle and State Callbacks
+        </item>
+        <item>
+            Develop and Mobile Application for following topic\n
+            \t1. Implement Practical 1.1 using following layouts:\n
+                \t\t1. Linear Layout\n
+                \t\t2. Relative Layout\n
+                \t\t3. Table Layout\n
+            \t2. Use an Options Menu\n
+            \t3. Create a Recycler View and list the details of student using following fields:\n
+                \t\t1. Name\n
+                \t\t2. Address\n
+                \t\t3. Photo (Image)\n
+                \t\t4. Delete ( Button Operation)\n
+        </item>
+        <item>
+            Develop and Mobile Application for following topic\n
+            \t\t1. Theme,\n
+            \t\t2. Custom Styles\n
+        </item>
+        <item>
+            Develop and Mobile Application for storing Data and Retrieve and Manipulate data Using SQLite database\n
+        </item>
+        <item>
+            Develop and Mobile Application for following topic\n
+            \t1. Use an AsyncTask to access remote database (make a use of simple PhP Web service)\n
+            \t2. Use Retrofit to access remote database (make a use of simple PhP Web service)\n
+        </item>
+        <item>
+            Develop and Mobile Application for following topic\n
+            \t1. Get and Save User Preferences\n
+            \t2. Use Firebase to perform CRUD operation\n
+        </item>
+        <item>
+            Develop and Mobile Application for following topic\n
+            \t1. BroadcastReceiver\n
+            \t2. Notifications\n
+        </item>
+        <item>
+            Develop and Mobile Application for following topic\n
+            \t1. Make a use of android system like play audio,Video,Send SMS,Email,\n
+            \t2. Using location service get the current location\n
+            \t3. Display the use of animations\n
+        </item>
+        <item>
+            Develop a Mobile application for any topic (Mini Project)\n
+        </item>
+        <item>
+            Write Steps to generate a APK File of Mini Project and publish the Application\n
+        </item>
+    </string-array>
+    <string-array name="practical_launchers">
+        <item>com.mad.practicals.p1_2.LoginActivity</item>
+        <item>com.mad.practicals.p1_2.LoginActivity</item>
+        <item>com.mad.practicals.p2_3_5_6.StudentRecordsActivity</item>
+        <item>com.app.blogholic</item>
+        <item>com.mad.practicals.p2_3_5_6.StudentRecordsActivity</item>
+        <item>com.mad.practicals.p2_3_5_6.StudentRecordsActivity</item>
+        <item>com.mad.practicals.p7_8.BatteryStatusActivity</item>
+        <item>com.mad.practicals.p8.Practical8Activity</item>
+        <item>com.app.chitchat</item>
+    </string-array>
+
 </resources>

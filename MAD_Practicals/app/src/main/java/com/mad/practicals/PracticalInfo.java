@@ -5,14 +5,14 @@ public class PracticalInfo {
     private String label;
     private String aim;
     private String launcherActivity;
-    private String msTeamsURL;
+    private int imgId;
 
-    public PracticalInfo(int _id, String label, String aim, String launcherActivity, String msTeamsURL) {
+    public PracticalInfo(int _id, String label, String aim, String launcherActivity, int imgId) {
         this._id = _id;
         this.label = label;
         this.aim = aim;
         this.launcherActivity = launcherActivity;
-        this.msTeamsURL = msTeamsURL;
+        this.imgId = imgId;
     }
 
     public int get_id() {
@@ -47,11 +47,22 @@ public class PracticalInfo {
         this.launcherActivity = launcherActivity;
     }
 
-    public String getMsTeamsURL() {
-        return msTeamsURL;
+    public int getImgId() {
+        return imgId;
     }
 
-    public void setMsTeamsURL(String msTeamsURL) {
-        this.msTeamsURL = msTeamsURL;
+    public void setImgId(int imgId) {
+        this.imgId = imgId;
+    }
+
+    @Override
+    public String toString() {
+        return "PracticalInfo{" +
+                "_id=" + _id +
+                ", label='" + label + '\'' +
+                ", aim='" + aim + '\'' +
+                ", launcherActivity='" + launcherActivity + '\'' +
+                ", imgId=" + imgId +
+                '}';
     }
 }

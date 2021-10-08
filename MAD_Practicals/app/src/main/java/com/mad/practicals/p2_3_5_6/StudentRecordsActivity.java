@@ -494,7 +494,8 @@ public class StudentRecordsActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        studentDB.removeEventListener(childEventListener);
+        if(studentDB!=null && childEventListener!=null)
+            studentDB.removeEventListener(childEventListener);
         super.onDestroy();
     }
 }
