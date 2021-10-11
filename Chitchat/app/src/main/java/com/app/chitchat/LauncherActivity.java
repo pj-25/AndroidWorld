@@ -31,7 +31,10 @@ public class LauncherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        if(MainActivity.phoneNumber !=null){
+            finish();
+            return;
+        }
         SharedPreferences sharedPreferences = getSharedPreferences(Const.USER_DATA_PREF, MODE_PRIVATE);
         String phoneNum = sharedPreferences.getString(Const.USER_ID, null);
         if(phoneNum != null){
@@ -46,7 +49,7 @@ public class LauncherActivity extends AppCompatActivity {
 
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if(user!=null){
-                String phoneNumber = user.getPhoneNumber();
+                String phoneNumber = user.getPhoneNumber().substring(3);
                 logUser(phoneNumber);
                 jumpToCreateProfile();
             }else{
@@ -68,11 +71,13 @@ public class LauncherActivity extends AppCompatActivity {
     private void jumpToCreateProfile(){
         Intent createProfileIntent = new Intent(this, UserProfileInput.class);
         startActivity(createProfileIntent);
+        finish();
     }
 
     private void jumpToMainActivity() {
         Intent mainIntent = new Intent(this, MainActivity.class);
         startActivity(mainIntent);
+        finish();
     }
 
     public void jumpToSignIn(){
@@ -93,4 +98,5 @@ public class LauncherActivity extends AppCompatActivity {
         finish();
         super.onActivityResult(requestCode, resultCode, data);
     }
+
 }

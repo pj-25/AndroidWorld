@@ -64,4 +64,15 @@ public class Profile {
     public void setGroup(boolean group) {
         isGroup = group;
     }
+
+    @Override
+    public String toString() {
+        return "Profile{" +
+                "_id='" + _id + '\'' +
+                ", name='" + name + '\'' +
+                ", profileImgPath='" + profileImgPath + '\'' +
+                ", description='" + description + '\'' +
+                ", isGroup=" + isGroup +
+                '}';
+    }
 }

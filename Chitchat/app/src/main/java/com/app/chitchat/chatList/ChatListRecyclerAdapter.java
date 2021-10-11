@@ -1,7 +1,8 @@
 package com.app.chitchat.chatList;
 
-import android.database.Cursor;
+import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -12,6 +13,7 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.app.chitchat.chatWindow.ChatWindowActivity;
 import com.app.chitchat.R;
 import com.app.chitchat.data.Chat;
 import com.app.chitchat.data.Message;
@@ -24,12 +26,10 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
 
     private LinkedList<Chat> chatLinkedList;
     private DatabaseHandler dbHandler;
-    private Cursor cursor;
 
-    public ChatListRecyclerAdapter(LinkedList<Chat> chatLinkedList, DatabaseHandler dbHandler, Cursor cursor){
+    public ChatListRecyclerAdapter(LinkedList<Chat> chatLinkedList, DatabaseHandler dbHandler){
         this.chatLinkedList = chatLinkedList;
         this.dbHandler = dbHandler;
-        this.cursor = cursor;
     }
 
     @NonNull
@@ -40,18 +40,25 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
 
     @Override
     public void onBindViewHolder(@NonNull ChatCardViewHolder holder, int position) {
-        Chat chatData = DatabaseHandler.readChatFrom(cursor);
+        Chat chatData = chatLinkedList.get(holder.getAdapterPosition());
         ConstraintLayout view = holder.cardView.findViewById(R.id.chat_row_container);
         ImageView profileImage = view.findViewById(R.id.chat_dp);
-        Glide.with(holder.itemView.getContext()).load(chatData.getProfileImgPath()).into(profileImage);
+        Glide.with(holder.itemView.getContext()).load(Uri.parse(chatData.getProfileImgPath())).placeholder(R.drawable.ic_user).into(profileImage);
         TextView name = view.findViewById(R.id.chat_name);
         name.setText(chatData.getName());
         Message lastMsgData = dbHandler.getMessageById(chatData.get_id(), chatData.getLastMsgId());
+        holder.cardView.setOnClickListener(v -> {
+            Intent chatIntent = new Intent(profileImage.getContext(), ChatWindowActivity.class);
+            chatIntent.putExtra(ChatWindowActivity.CHAT_INDEX, holder.getAdapterPosition());
+            profileImage.getContext().startActivity(chatIntent);
+        });
         if(chatData.getLastMsgId() != -1){
             String content = dbHandler.getSimpleMsgContent(chatData.get_id(), chatData.getLastMsgId());
             TextView lastMsg = view.findViewById(R.id.chat_last_msg);
             if(content!=null){
-                content = lastMsgData.getFrom()+": "+content;
+                if(!lastMsgData.getFrom().equals(chatData.get_id())){
+                    content = "you: " + content;
+                }
                 lastMsg.setText(content);
                 TextView lastMsgTime = view.findViewById(R.id.chat_last_msg_time);
                 lastMsgTime.setText(lastMsgData.getTime());
@@ -86,17 +93,9 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
         this.dbHandler = dbHandler;
     }
 
-    public Cursor getCursor() {
-        return cursor;
-    }
+    public class ChatCardViewHolder extends RecyclerView.ViewHolder{
 
-    public void setCursor(Cursor cursor) {
-        this.cursor = cursor;
-    }
-
-    public static class ChatCardViewHolder extends RecyclerView.ViewHolder{
-
-        private final CardView cardView;
+        private CardView cardView;
 
         public ChatCardViewHolder(@NonNull CardView cardView) {
             super(cardView);

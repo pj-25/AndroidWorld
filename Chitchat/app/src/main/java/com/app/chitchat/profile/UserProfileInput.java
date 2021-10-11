@@ -24,7 +24,7 @@ import android.widget.Toast;
 import com.app.chitchat.R;
 import com.app.chitchat.chatList.MainActivity;
 import com.app.chitchat.data.Const;
-import com.app.chitchat.data.Profile;
+import com.app.chitchat.data.firebaseData.Profile;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -166,7 +166,7 @@ public class UserProfileInput extends AppCompatActivity {
 
     public void uploadUserProfile(){
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference(Const.USERS_REF);
-        Profile userProfile = new Profile(phnNumInput.getText().toString(), nameInput.getText().toString(), downloadURL.toString(), descriptionInput.getText().toString());
+        com.app.chitchat.data.firebaseData.Profile userProfile = new Profile(phnNumInput.getText().toString(), nameInput.getText().toString(), downloadURL.toString(), descriptionInput.getText().toString(), false, true);
         userProfile.set_id(null);
         userRef.child(phnNumInput.getText().toString()).setValue(userProfile);
     }
@@ -174,7 +174,7 @@ public class UserProfileInput extends AppCompatActivity {
     public void uploadData(){
         StorageReference imageRef = FirebaseStorage.getInstance().getReference("profile_img/"+phnNumInput.getText().toString());
         ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Uploading profile image");
+        progressDialog.setTitle("Uploading profile data");
         progressDialog.setMessage("Please wait...");
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         try {
@@ -188,7 +188,7 @@ public class UserProfileInput extends AppCompatActivity {
                     })
                     .addOnCompleteListener(task -> {
                         if(task.isSuccessful()){
-                            displayToast("Profile image uploaded successfully!");
+                            displayToast("Profile data uploaded successfully!");
                             progressDialog.dismiss();
                             downloadURL = task.getResult();
                             uploadUserProfile();

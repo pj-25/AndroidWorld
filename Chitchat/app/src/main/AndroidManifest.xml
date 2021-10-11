@@ -13,8 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Chitchat">
         <activity
-            android:name=".ChatActivity"
+            android:name=".chatWindow.ChatWindowActivity"
             android:exported="true"
+            android:windowSoftInputMode="stateVisible|adjustPan"
+            android:theme="@style/Theme.Chitchat.NoActionBar"
             android:parentActivityName=".chatList.MainActivity"/>
         <activity
             android:name=".profile.UserProfileInput"

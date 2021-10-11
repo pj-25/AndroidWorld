@@ -5,16 +5,22 @@ public class Message {
     private String from;
     private String time;
     private int type;
+    private MessageBody body;
 
     public Message(int id){
         this(id, null, null, -1);
     }
 
-    public Message(int _id, String from, String time, int type) {
+    public Message(int _id, String from, String time, int type, MessageBody body) {
         this._id = _id;
-        this.time = time;
         this.from = from;
+        this.time = time;
         this.type = type;
+        this.body = body;
+    }
+
+    public Message(int _id, String from, String time, int type) {
+        this(_id, from, time, type, null);
     }
 
     public int get_id() {
@@ -49,12 +55,32 @@ public class Message {
         this.type = type;
     }
 
+    public MessageBody getBody() {
+        return body;
+    }
+
+    public void setBody(MessageBody body) {
+        this.body = body;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "_id=" + _id +
+                ", from='" + from + '\'' +
+                ", time='" + time + '\'' +
+                ", type=" + type +
+                ", body=" + body +
+                '}';
+    }
+
     public enum MessageType{
         TEXT,
         LINK,
         IMAGE,
         STICKER,
         GIF,
-        HYBRID
+        HYBRID,
+        FILE
     }
 }

@@ -1,65 +1,92 @@
 package com.app.chitchat.chatList;
 
 import android.annotation.SuppressLint;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.app.chitchat.ChatActivity;
+import com.app.chitchat.chatWindow.ChatWindowActivity;
 import com.app.chitchat.LauncherActivity;
 import com.app.chitchat.R;
 import com.app.chitchat.data.Chat;
 import com.app.chitchat.data.Const;
+import com.app.chitchat.data.firebaseData.Profile;
 import com.app.chitchat.databaseHandler.DatabaseHandler;
+import com.app.chitchat.networkConnection.MessageConsumerService;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private static LinkedList<Chat> chatLinkedList;
-    public static String PHONE_NUMBER = null;
+    public static String phoneNumber = null;
     private static DatabaseHandler dbHandler;
-    private DatabaseReference msgsRef;
+    private DatabaseReference onlineStatusRef;
     private RecyclerView chatListRecyclerView;
+
+    public static boolean isForeground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        phoneNumber = getSharedPreferences(Const.USER_DATA_PREF, MODE_PRIVATE).getString(Const.USER_ID, null);
+        registerMessageConsumerService();
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> createChat());
 
-        PHONE_NUMBER = getSharedPreferences(Const.USER_DATA_PREF, MODE_PRIVATE).getString(Const.USER_ID, null);
-
         dbHandler = new DatabaseHandler(this);
-        chatLinkedList = new LinkedList<>();
-        Cursor cursor = dbHandler.getReadableDatabase().query(DatabaseHandler.CHAT_TABLE, DatabaseHandler.CHAT_COLUMNS, null, null, null, null,  String.valueOf(DatabaseHandler.CHAT_COLUMNS[4]));
+        loadChatListData();
+        /*
+        msgConsumer = new MessageConsumer(this);
+        msgConsumer.registerMessageListener(phoneNumber);
+         */
+        onlineStatusRef = FirebaseDatabase.getInstance().getReference(Const.USERS_REF).child(phoneNumber).child(Const.ONLINE_STATUS_REF);
+    }
+
+    private void loadChatListData() {
+        chatLinkedList =  dbHandler.getAllChats();
+        if(chatLinkedList==null){
+            chatLinkedList = new LinkedList<>();
+        }
         chatListRecyclerView = findViewById(R.id.chat_list_recycler_view);
-        chatListRecyclerView.setAdapter(new ChatListRecyclerAdapter(chatLinkedList, dbHandler, cursor));
+        chatListRecyclerView.setAdapter(new ChatListRecyclerAdapter(chatLinkedList, dbHandler));
         chatListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    @Override
+    protected void onStart() {
+        updateOnlineStatus(true);
+        super.onStart();
     }
 
     @Override
@@ -89,6 +116,27 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void registerMessageConsumerService(){
+        boolean isJobRunning = MessageConsumerService.isRunning;
+        if(!isJobRunning && !MessageConsumerService.isJobServiceOn(this, MessageConsumerService.JOB_ID)){
+            JobInfo.Builder jobBuilder = new JobInfo.Builder(MessageConsumerService.JOB_ID, new ComponentName(this, MessageConsumerService.class))
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+            JobScheduler jobScheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+            jobScheduler.schedule(jobBuilder.build());
+            Toast.makeText(this, "Message consumer scheduled successfully!", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this, "Message consumer already scheduled!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static LinkedList<Chat> getChatLinkedList() {
+        return chatLinkedList;
+    }
+
+    public static void setChatLinkedList(LinkedList<Chat> chatLinkedList) {
+        MainActivity.chatLinkedList = chatLinkedList;
+    }
+
     public void showProfile() {
 
     }
@@ -98,21 +146,76 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void deleteChats(){
-
+        cancelJobService();
+        Toast.makeText(this, "Message service cancelled!", Toast.LENGTH_SHORT).show();
     }
 
     public void openSettings(){
 
     }
 
+    public void openChat(String chatUserId){
+        Intent chatIntent = new Intent(this, ChatWindowActivity.class);
+        chatIntent.putExtra(ChatWindowActivity.USER_ID, chatUserId);
+        startActivity(chatIntent);
+    }
+
     public void createChat(){
-        Intent intent = new Intent(this, ChatActivity.class);
-        startActivity(intent);
+        final EditText phnNumInput = new EditText(this);
+        phnNumInput.setGravity(Gravity.CENTER);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle("Start (Chit)Chat")
+                .setMessage("Enter friend's phone number:")
+                .setIcon(R.drawable.chitchat_logo)
+                .setView(phnNumInput);
+
+        builder.setPositiveButton("Create", (dialog, which) -> {
+                    String fPhnNum = phnNumInput.getText().toString();
+                    if(!fPhnNum.isEmpty()){
+                        FirebaseDatabase.getInstance()
+                                .getReference(Const.USERS_REF)
+                                .child(fPhnNum)
+                                .get()
+                                .addOnCompleteListener(task->{
+                                    if(task.isSuccessful()){
+                                        Profile friendsProfile = task.getResult().getValue(Profile.class);
+                                        if(friendsProfile!=null){
+                                            Chat newChat = new Chat(friendsProfile, 0);
+                                            newChat.set_id(fPhnNum);
+                                            dbHandler.insertChat(newChat);
+                                            addChat(newChat);
+                                            dialog.dismiss();
+                                        }else{
+                                            builder.setMessage("Invite "+fPhnNum+" to ChitChat");
+                                            builder.setNeutralButton("Invite", (dialog1, which1) -> {
+                                                inviteToChitchat(fPhnNum);
+                                                dialog1.dismiss();
+                                                dialog.dismiss();
+                                            });
+                                        }
+                                    }
+                                });
+                    }else{
+                        phnNumInput.requestFocus();
+                    }
+                })
+                .setNegativeButton("Cancel",(dialog, which) -> {
+                    dialog.dismiss();
+                } ).show();
+    }
+
+    public void addChat(Chat chat){
+        chatLinkedList.addFirst(chat);
+        chatListRecyclerView.getAdapter().notifyItemInserted(0);
+    }
+
+    public void inviteToChitchat(String phnNum){
+        AlertDialog.Builder inviteDialog = new AlertDialog.Builder(this);
+        //TODO create a dialog popup to show invitation options
     }
 
     public void logout(){
         AlertDialog.Builder confirmDialog = new AlertDialog.Builder(this);
-
         confirmDialog.setTitle("Confirm?");
         confirmDialog.setMessage("Warning: All data will be lost!");
         confirmDialog.setPositiveButton("Logout", (dialog, which) -> {
@@ -122,12 +225,27 @@ public class MainActivity extends AppCompatActivity {
                     clearLoginPref();
                     jumpToLauncher();
                     this.deleteDatabase(DatabaseHandler.DB_NAME);
+                    cancelJobService();
                 }
             });
         }).setNegativeButton("Cancel", (dialog, which) -> {
             dialog.dismiss();
         });
         confirmDialog.show();
+    }
+
+    private void updateOnlineStatus(boolean isOnline){
+        isForeground = isOnline;
+        onlineStatusRef.setValue(isOnline);
+        if(!isOnline){
+            String time = new SimpleDateFormat("yyyy.MM.dd - h:mm a", Locale.getDefault()).format(new Date());
+            onlineStatusRef.getParent().child(Const.LAST_SEEN_REF).setValue(time);
+        }
+    }
+
+    private void cancelJobService() {
+        ((JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE)).cancel(MessageConsumerService.JOB_ID);
+        MessageConsumerService.isRunning = false;
     }
 
     public void jumpToLauncher(){
@@ -145,13 +263,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        finish();
-        super.onBackPressed();
+    protected void onStop() {
+        isForeground = false;
+        super.onStop();
     }
 
     @Override
     protected void onDestroy() {
+        updateOnlineStatus(false);
         dbHandler.close();
         dbHandler = null;
         super.onDestroy();

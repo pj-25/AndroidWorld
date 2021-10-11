@@ -48,4 +48,13 @@ public class Chat extends Profile {
     public void setLastMsgId(int lastMsgId) {
         this.lastMsgId = lastMsgId;
     }
+
+    @Override
+    public String toString() {
+        return "Chat{" +
+                "pos=" + pos +
+                ", unreadMsgCount=" + unreadMsgCount +
+                ", lastMsgId=" + lastMsgId +
+                '}';
+    }
 }
