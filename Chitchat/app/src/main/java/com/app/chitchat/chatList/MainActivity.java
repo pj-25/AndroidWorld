@@ -21,11 +21,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,13 +43,21 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ChatListRecyclerAdapter.ChatClickListener {
 
     private static LinkedList<Chat> chatLinkedList;
     public static String phoneNumber = null;
     private static DatabaseHandler dbHandler;
     private DatabaseReference onlineStatusRef;
     private RecyclerView chatListRecyclerView;
+
+    private int openedChatIndex = -1;
+    private ActivityResultLauncher<Intent> chatLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if(result.getResultCode()==RESULT_OK){
+            moveChatToTop(openedChatIndex);
+            openedChatIndex = -1;
+        }
+    });
 
     public static boolean isForeground;
 
@@ -73,13 +83,24 @@ public class MainActivity extends AppCompatActivity {
         onlineStatusRef = FirebaseDatabase.getInstance().getReference(Const.USERS_REF).child(phoneNumber).child(Const.ONLINE_STATUS_REF);
     }
 
+    public void moveChatToTop(int index){
+        if(index==0){
+            chatListRecyclerView.getAdapter().notifyItemChanged(0);
+        }else{
+            Chat openedChat = chatLinkedList.remove(index);
+            chatListRecyclerView.getAdapter().notifyItemRemoved(index);
+            chatLinkedList.addFirst(openedChat);
+            chatListRecyclerView.getAdapter().notifyItemInserted(0);
+        }
+    }
+
     private void loadChatListData() {
         chatLinkedList =  dbHandler.getAllChats();
         if(chatLinkedList==null){
             chatLinkedList = new LinkedList<>();
         }
         chatListRecyclerView = findViewById(R.id.chat_list_recycler_view);
-        chatListRecyclerView.setAdapter(new ChatListRecyclerAdapter(chatLinkedList, dbHandler));
+        chatListRecyclerView.setAdapter(new ChatListRecyclerAdapter(chatLinkedList, dbHandler, this));
         chatListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
@@ -152,6 +173,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void openSettings(){
 
+    }
+
+    public void openChat(int chatPos){
+        Intent chatIntent = new Intent(this, ChatWindowActivity.class);
+        chatIntent.putExtra(ChatWindowActivity.CHAT_INDEX, chatPos);
+        openedChatIndex = chatPos;
+        chatLauncher.launch(chatIntent);
     }
 
     public void openChat(String chatUserId){
@@ -234,6 +262,13 @@ public class MainActivity extends AppCompatActivity {
         confirmDialog.show();
     }
 
+    private void updatePositions(){
+        int i=0;
+        for(Chat chat:chatLinkedList){
+            dbHandler.updateChatPos(chat.get_id(), i++);
+        }
+    }
+
     private void updateOnlineStatus(boolean isOnline){
         isForeground = isOnline;
         onlineStatusRef.setValue(isOnline);
@@ -251,7 +286,6 @@ public class MainActivity extends AppCompatActivity {
     public void jumpToLauncher(){
         Intent launcherIntent = new Intent(this, LauncherActivity.class);
         startActivity(launcherIntent);
-        finish();
     }
 
     public void clearLoginPref(){
@@ -263,6 +297,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        finishAffinity();
+        super.onBackPressed();
+    }
+
+    @Override
     protected void onStop() {
         isForeground = false;
         super.onStop();
@@ -270,11 +310,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        updatePositions();
         updateOnlineStatus(false);
         dbHandler.close();
         dbHandler = null;
         super.onDestroy();
     }
 
-
+    @Override
+    public void onChatClick(int pos) {
+        openChat(pos);
+    }
 }

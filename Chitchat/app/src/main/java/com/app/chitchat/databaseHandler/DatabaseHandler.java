@@ -11,7 +11,6 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.app.chitchat.data.Chat;
-import com.app.chitchat.data.HybridMsg;
 import com.app.chitchat.data.Message;
 import com.app.chitchat.data.Profile;
 import com.app.chitchat.data.SimpleMessageBody;
@@ -89,7 +88,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public LinkedList<Chat> getAllChats(){
         SQLiteDatabase db = getReadableDatabase();
-        Cursor chatCursor = db.query(CHAT_TABLE, CHAT_COLUMNS, null, null, null, null, null);
+        Cursor chatCursor = db.query(CHAT_TABLE, CHAT_COLUMNS, null, null, null, null, CHAT_COLUMNS[4]+" ASC");
         LinkedList<Chat> chatList = null;
         if(chatCursor!=null && chatCursor.moveToFirst()){
             chatList = new LinkedList<>();
@@ -155,18 +154,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return false;
     }
 
-    public long insertMessage(String fromUserId, com.app.chitchat.data.firebaseData.Message msg) {
+    public long insertMessage(String to, String from, com.app.chitchat.data.firebaseData.Message msg, boolean doIncrement) {
         try{
-            long msgId = insertMessage(fromUserId, msg.getTime(), msg.getType());
+            long msgId = insertMessage(to, from, msg.getTime(), msg.getType());
             long msgBodyId = -1;
             if(msgId!=-1){
                 if(msg.getType() != Message.MessageType.HYBRID.ordinal()){
-                    msgBodyId = insertSimpleMsg(fromUserId, msgId, msg.getContent());
+                    msgBodyId = insertSimpleMsg(to, msgId, msg.getContent());
                 }
                 //TODO insert HYBRID msg implementation
 
                 if(msgBodyId != -1){
-                    updateLastMsgId(fromUserId, msgBodyId);
+                    updateLastMsgId(to, msgBodyId);
+                    if(doIncrement)
+                        incrementUnreadMsgCount(to);
                     return msgId;
                 }
             }
@@ -177,10 +178,21 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    public void incrementUnreadMsgCount(String chatId){
+        String q = "UPDATE chat SET unread_msgs = unread_msgs + 1 where _id = "+chatId;
+        getWritableDatabase().execSQL(q);
+    }
+
+    public boolean resetUnreadMsgCount(String chatId){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CHAT_COLUMNS[5], 0);
+        return getWritableDatabase().update(CHAT_TABLE, contentValues, "_id=?", new String[]{chatId})!=0;
+    }
+
     public int updateChatPos(String chatId, int pos){
         ContentValues contentValues = new ContentValues();
         contentValues.put(CHAT_COLUMNS[4], pos);
-        return getWritableDatabase().update(CHAT_TABLE, contentValues, "_id=?", new String[]{chatId});
+        return getWritableDatabase().update(CHAT_TABLE, contentValues, "_id = ?", new String[]{chatId});
     }
 
     public int updateLastMsgId(String chatId, long msgId){
@@ -212,10 +224,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public Message getMessageById(String userId, long msgId){
-        Cursor msgCursor = getReadableDatabase().query(getMessageTableName(userId), MSG_COLUMNS, MSG_COLUMNS[0]+"= ?", new String[]{String.valueOf(msgId)}, null, null, null);
+        Cursor msgCursor = getReadableDatabase().query(getMessageTableName(userId), MSG_COLUMNS, MSG_COLUMNS[0]+" = ?", new String[]{String.valueOf(msgId)}, null, null, null);
         Message msg = null;
         if(msgCursor!=null && msgCursor.moveToFirst()){
-            msg= readMsgFrom(msgCursor);
+            msg= readMsgFrom(msgCursor, userId);
             msgCursor.close();
         }
         return msg;
@@ -226,13 +238,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public LinkedList<Message> getAllMessages(String userId, String limit, LinkedList<Message> msgList){
-        Cursor msgCursor = getReadableDatabase().query(getMessageTableName(userId), MSG_COLUMNS, MSG_COLUMNS[1]+"= ?", new String[]{userId}, null, null, MSG_COLUMNS[2]+" DESC", limit);
-        return getAllMessagesFrom(msgCursor, msgList);
+        Cursor msgCursor = getReadableDatabase().query(getMessageTableName(userId), MSG_COLUMNS, null, null, null, null, MSG_COLUMNS[2]+" DESC", limit);
+        return getAllMessagesFrom(msgCursor, userId, msgList);
     }
 
     public LinkedList<Message> getAllMessagesLessThan(String userId, String time, String limit, LinkedList<Message> msgList){
         Cursor msgCursor = getReadableDatabase().query(getMessageTableName(userId), MSG_COLUMNS, MSG_COLUMNS[1]+"= ? and "+MSG_COLUMNS[2]+" < ?", new String[]{userId, time}, null, null, MSG_COLUMNS[2]+" DESC", limit);
-        return getAllMessagesFrom(msgCursor, msgList);
+        return getAllMessagesFrom(msgCursor,userId,msgList);
     }
 
     public void clearAllMessages(String userId){
@@ -247,34 +259,34 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public LinkedList<Message> getAllMessagesFrom(Cursor msgCursor, LinkedList<Message> msgList){
+    public LinkedList<Message> getAllMessagesFrom(Cursor msgCursor, String userId, LinkedList<Message> msgList){
         if(msgCursor != null && msgCursor.moveToFirst()) {
             if(msgList==null)
                 msgList = new LinkedList<>();
             do{
-                msgList.addLast(readMsgFrom(msgCursor));
+                msgList.addLast(readMsgFrom(msgCursor, userId));
             }while (msgCursor.moveToNext());
         }
         return msgList;
     }
 
-    private Message readMsgFrom(Cursor msgCursor) {
+    private Message readMsgFrom(Cursor msgCursor, String userId) {
         Message msg = new Message(msgCursor.getInt(0), msgCursor.getString(1), msgCursor.getString(2), msgCursor.getInt(3));
         if(msg.getType() == Message.MessageType.HYBRID.ordinal()){
             //TODO handle hybrid msg fetch
         }else{
-            SimpleMessageBody simpleMessageBody = getSimpleMsgBy(msg.getFrom(), msg.get_id());
+            SimpleMessageBody simpleMessageBody = getSimpleMsgBy(userId, msg.get_id());
             msg.setBody(simpleMessageBody);
         }
         return msg;
     }
 
-    public long insertMessage(String fromUserId, String time, int type){
+    public long insertMessage(String to, String from, String time, int type){
         ContentValues msgContentValues = new ContentValues();
-        msgContentValues.put(MSG_COLUMNS[1], fromUserId);
+        msgContentValues.put(MSG_COLUMNS[1], from);
         msgContentValues.put(MSG_COLUMNS[2], time);
         msgContentValues.put(MSG_COLUMNS[3], type);
-        return getWritableDatabase().insert(getMessageTableName(fromUserId), null, msgContentValues);
+        return getWritableDatabase().insert(getMessageTableName(to), null, msgContentValues);
     }
 
     public static String getMessageTableName(String userId){
@@ -295,7 +307,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public SimpleMessageBody getSimpleMsgBy(String userId, int msgID){
-        Cursor cursor = getReadableDatabase().query(getMsgBodyTableName(userId), new String[]{"_id", "content"}, "_id=?", new String[]{String.valueOf(msgID)}, null, null, null);
+        Cursor cursor = getReadableDatabase().query(getMsgBodyTableName(userId), new String[]{"_id", "content"}, SIMPLE_MSG_BODY_COLUMNS[1]+"=?", new String[]{String.valueOf(msgID)}, null, null, null);
         SimpleMessageBody simpleMessageBody = null;
         if(cursor!=null && cursor.moveToFirst()){
             simpleMessageBody = readSimpleMsgFrom(cursor);

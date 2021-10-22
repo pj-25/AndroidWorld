@@ -45,16 +45,18 @@ public class MsgRecyclerViewAdapter extends RecyclerView.Adapter<MsgRecyclerView
             msgContentView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             msgContentView.setText(((SimpleMessageBody)msg.getBody()).getContent());
             msgContentView.setGravity(Gravity.START);
-            
-            
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            
+
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            int g;
             if(msg.getFrom().equals(ChatWindowActivity.myPhoneNumber)){
-                layoutParams.gravity = Gravity.END;
+                g = Gravity.END;
             }else{
-                layoutParams.gravity = Gravity.START;
+                g = Gravity.START;
             }
-            holder.msgBox.findViewById(R.id.msg_card_view).setLayoutParams(layoutParams);
+            holder.msgBox.setPadding(8,8,8,8);
+            holder.msgBox.setLayoutParams(layoutParams);
+            holder.msgBox.setGravity(g);
+
             if(linearLayout.getChildCount()>1)
                 linearLayout.removeViewAt(1);
             linearLayout.addView(msgContentView);
@@ -66,7 +68,7 @@ public class MsgRecyclerViewAdapter extends RecyclerView.Adapter<MsgRecyclerView
         return msgList.size();
     }
 
-    public class msgBoxHolder extends RecyclerView.ViewHolder {
+    public static class msgBoxHolder extends RecyclerView.ViewHolder {
 
         private LinearLayout msgBox;
 

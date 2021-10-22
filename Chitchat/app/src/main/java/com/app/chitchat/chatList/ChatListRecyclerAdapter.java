@@ -1,6 +1,5 @@
 package com.app.chitchat.chatList;
 
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -13,7 +12,6 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.chitchat.chatWindow.ChatWindowActivity;
 import com.app.chitchat.R;
 import com.app.chitchat.data.Chat;
 import com.app.chitchat.data.Message;
@@ -26,32 +24,32 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
 
     private LinkedList<Chat> chatLinkedList;
     private DatabaseHandler dbHandler;
+    private ChatClickListener chatClickListener;
 
-    public ChatListRecyclerAdapter(LinkedList<Chat> chatLinkedList, DatabaseHandler dbHandler){
+    public ChatListRecyclerAdapter(LinkedList<Chat> chatLinkedList, DatabaseHandler dbHandler, ChatClickListener chatClickListener){
         this.chatLinkedList = chatLinkedList;
         this.dbHandler = dbHandler;
+        this.chatClickListener = chatClickListener;
     }
 
     @NonNull
     @Override
     public ChatCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ChatCardViewHolder((CardView) LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_row_card_view, parent, false));
+        return new ChatCardViewHolder((CardView) LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_row_card_view, parent, false), chatClickListener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ChatCardViewHolder holder, int position) {
-        Chat chatData = chatLinkedList.get(holder.getAdapterPosition());
+        Chat chatData = chatLinkedList.get(position);
+        holder.setItemClickListener(chatClickListener);
         ConstraintLayout view = holder.cardView.findViewById(R.id.chat_row_container);
         ImageView profileImage = view.findViewById(R.id.chat_dp);
         Glide.with(holder.itemView.getContext()).load(Uri.parse(chatData.getProfileImgPath())).placeholder(R.drawable.ic_user).into(profileImage);
         TextView name = view.findViewById(R.id.chat_name);
         name.setText(chatData.getName());
         Message lastMsgData = dbHandler.getMessageById(chatData.get_id(), chatData.getLastMsgId());
-        holder.cardView.setOnClickListener(v -> {
-            Intent chatIntent = new Intent(profileImage.getContext(), ChatWindowActivity.class);
-            chatIntent.putExtra(ChatWindowActivity.CHAT_INDEX, holder.getAdapterPosition());
-            profileImage.getContext().startActivity(chatIntent);
-        });
+        TextView lastMsgTime = view.findViewById(R.id.chat_last_msg_time);
+        TextView unreadMsgCount = view.findViewById(R.id.chat_unread_msg_count);
         if(chatData.getLastMsgId() != -1){
             String content = dbHandler.getSimpleMsgContent(chatData.get_id(), chatData.getLastMsgId());
             TextView lastMsg = view.findViewById(R.id.chat_last_msg);
@@ -60,14 +58,16 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
                     content = "you: " + content;
                 }
                 lastMsg.setText(content);
-                TextView lastMsgTime = view.findViewById(R.id.chat_last_msg_time);
                 lastMsgTime.setText(lastMsgData.getTime());
                 if(chatData.getUnreadMsgCount()!=0){
-                    TextView unreadMsgCount = view.findViewById(R.id.chat_unread_msg_count);
-                    unreadMsgCount.setText(chatData.getUnreadMsgCount());
+                    String ucount = String.valueOf(chatData.getUnreadMsgCount());
+                    unreadMsgCount.setText(ucount);
                     name.setTypeface(name.getTypeface(), Typeface.BOLD);
-                    lastMsg.setTypeface(lastMsg.getTypeface(), Typeface.BOLD);
                 }
+            }else{
+                lastMsg.setText("");
+                lastMsgTime.setText("");
+                unreadMsgCount.setText("");
             }
         }
     }
@@ -93,13 +93,23 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
         this.dbHandler = dbHandler;
     }
 
-    public class ChatCardViewHolder extends RecyclerView.ViewHolder{
+    public static class ChatCardViewHolder extends RecyclerView.ViewHolder{
 
         private CardView cardView;
 
-        public ChatCardViewHolder(@NonNull CardView cardView) {
+        public ChatCardViewHolder(@NonNull CardView cardView, ChatClickListener chatClickListener) {
             super(cardView);
             this.cardView = cardView;
         }
+
+        public void setItemClickListener(ChatClickListener chatClickListener){
+            cardView.setOnClickListener(v -> {
+                chatClickListener.onChatClick(getAdapterPosition());
+            });
+        }
+    }
+
+    public interface ChatClickListener{
+        void onChatClick(int pos);
     }
 }

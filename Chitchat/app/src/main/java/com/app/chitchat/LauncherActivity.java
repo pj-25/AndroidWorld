@@ -31,14 +31,15 @@ public class LauncherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(MainActivity.phoneNumber !=null){
-            finish();
-            return;
-        }
         SharedPreferences sharedPreferences = getSharedPreferences(Const.USER_DATA_PREF, MODE_PRIVATE);
         String phoneNum = sharedPreferences.getString(Const.USER_ID, null);
         if(phoneNum != null){
-            jumpToMainActivity();
+            String name = sharedPreferences.getString(Const.NAME, null);
+            if(name!=null)
+                jumpToMainActivity();
+            else{
+                jumpToCreateProfile();
+            }
         }else{
             jumpToSignIn();
         }
@@ -71,13 +72,11 @@ public class LauncherActivity extends AppCompatActivity {
     private void jumpToCreateProfile(){
         Intent createProfileIntent = new Intent(this, UserProfileInput.class);
         startActivity(createProfileIntent);
-        finish();
     }
 
     private void jumpToMainActivity() {
         Intent mainIntent = new Intent(this, MainActivity.class);
         startActivity(mainIntent);
-        finish();
     }
 
     public void jumpToSignIn(){
@@ -95,7 +94,7 @@ public class LauncherActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        finish();
+        finishAffinity();
         super.onActivityResult(requestCode, resultCode, data);
     }
 

@@ -1,13 +1,18 @@
 package com.app.chitchat.chatWindow;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,11 +26,15 @@ import android.widget.Toast;
 
 import com.app.chitchat.R;
 import com.app.chitchat.chatList.MainActivity;
+import com.app.chitchat.data.Chat;
 import com.app.chitchat.data.Const;
 import com.app.chitchat.data.Profile;
+import com.app.chitchat.data.SimpleMessageBody;
 import com.app.chitchat.data.firebaseData.Message;
 import com.app.chitchat.databaseHandler.DatabaseHandler;
+import com.app.chitchat.networkConnection.MessageConsumer;
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,7 +43,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.LinkedList;
 
-public class ChatWindowActivity extends AppCompatActivity implements ValueEventListener {
+public class ChatWindowActivity extends AppCompatActivity {
 
     public static final String USER_ID = "userId";
     public static final String CHAT_INDEX = "uIndex";
@@ -48,9 +57,13 @@ public class ChatWindowActivity extends AppCompatActivity implements ValueEventL
     private DatabaseReference msgRef;
     private DatabaseReference onlineStatusRef;
     private DatabaseHandler dbHandler;
+    private OnlineStatusListener onlineStatusListener;
+    private BroadcastReceiver msgReceiver;
 
     private TextView onlineStatusField;
     private EditText msgField;
+
+    private boolean hasBeenModified;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +98,7 @@ public class ChatWindowActivity extends AppCompatActivity implements ValueEventL
                 dbHandler = new DatabaseHandler(this);
                 msgListRecyclerView = findViewById(R.id.msg_list_recycler_view);
                 loadMessages();
+                registerMsgReceiver();
             }
         }else{
             finish();
@@ -105,19 +119,48 @@ public class ChatWindowActivity extends AppCompatActivity implements ValueEventL
         return super.onOptionsItemSelected(item);
     }
 
+    private void registerMsgReceiver(){
+        msgReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(intent!=null){
+                    long msgId = intent.getLongExtra(MessageConsumer.MSG_ID, -1);
+                    if(msgId!=-1){
+                        com.app.chitchat.data.Message newMsg = dbHandler.getMessageById(profile.get_id(), msgId);
+                        if(newMsg!=null){
+                            addMsg(newMsg);
+                        }
+                    }
+                }
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter(MessageConsumer.ACTION_MSG_LISTENER);
+        LocalBroadcastManager.getInstance(this).registerReceiver(msgReceiver, intentFilter);
+    }
+
     private void registerOnlineStatusListener() {
         onlineStatusRef = FirebaseDatabase.getInstance()
                 .getReference(Const.USERS_REF)
                 .child(profile.get_id())
                 .child(Const.ONLINE_STATUS_REF);
         onlineStatusField.setText("");
-        onlineStatusRef.addValueEventListener(this);
+        onlineStatusListener = new OnlineStatusListener();
+        onlineStatusRef.addValueEventListener(onlineStatusListener);
     }
 
     public void loadMessages(){
         msgList = dbHandler.getAllMessages(profile.get_id(), String.valueOf(MSG_LIMIT));
         if(msgList==null){
             msgList = new LinkedList<>();
+        }else{
+            if(chatIndex!=-1){
+                Chat chat = MainActivity.getChatLinkedList().get(chatIndex);
+                if(chat.getUnreadMsgCount()!=0){
+                    hasBeenModified = true;
+                    dbHandler.resetUnreadMsgCount(profile.get_id());
+                    chat.setUnreadMsgCount(0);
+                }
+            }
         }
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setReverseLayout(true);
@@ -137,6 +180,8 @@ public class ChatWindowActivity extends AppCompatActivity implements ValueEventL
                     }
                     if(msgList.size()!=beforeLength){
                         msgListRecyclerView.getAdapter().notifyItemRangeInserted(beforeLength, msgList.size() - beforeLength);
+                    }else{
+                        msgListRecyclerView.removeOnScrollListener(this);
                     }
                 }
             }
@@ -147,7 +192,7 @@ public class ChatWindowActivity extends AppCompatActivity implements ValueEventL
         String msg = msgField.getText().toString().trim();
         if(!msg.isEmpty()){
             msgField.setText("");
-            long msgId = sendMsg( msgRef, dbHandler, myPhoneNumber, profile.get_id(), new Message(0, msg));
+            long msgId = sendMsg( msgRef, dbHandler, profile.get_id(), myPhoneNumber, new Message(0, msg));
             if(msgId!=-1){
                 com.app.chitchat.data.Message newMsgData = dbHandler.getMessageById(profile.get_id(), msgId);
                 if(newMsgData!=null)
@@ -159,21 +204,22 @@ public class ChatWindowActivity extends AppCompatActivity implements ValueEventL
     }
 
     public void addMsg(com.app.chitchat.data.Message msg){
+        hasBeenModified = true;
         msgList.addFirst(msg);
         System.out.println(msgList);
         msgListRecyclerView.getAdapter().notifyItemInserted(0);
         msgListRecyclerView.scrollToPosition(0);
     }
 
-    public static long sendMsg(DatabaseReference msgRef, DatabaseHandler dbHandler, String from, String to, Message msg){
+    public static long sendMsg(DatabaseReference msgRef, DatabaseHandler dbHandler, String to, String from, Message msg){
         msgRef.child(to).child(from).push().setValue(msg);
-        return dbHandler.insertMessage(to, msg);
+        return dbHandler.insertMessage(to, from, msg, false);
     }
 
-    public static long sendMsg(Context content, String from, String to, Message msg){
+    public static long sendMsg(Context content, String to, String from, Message msg){
         DatabaseReference msgRef = FirebaseDatabase.getInstance().getReference(Const.MSG_REF);
         DatabaseHandler dbHandler = new DatabaseHandler(content);
-        long msgId = sendMsg(msgRef, dbHandler, from, to, msg);
+        long msgId = sendMsg(msgRef, dbHandler, to, from, msg);
         dbHandler.close();
         return msgId;
     }
@@ -187,11 +233,23 @@ public class ChatWindowActivity extends AppCompatActivity implements ValueEventL
                     int len = msgList.size();
                     msgList.clear();
                     msgListRecyclerView.getAdapter().notifyItemRangeRemoved(0, len);
+                    hasBeenModified = true;
                     dialog.dismiss();
                 })
                 .setNegativeButton("No", (dialog, which) -> {
                     dialog.dismiss();
                 }).show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(chatIndex!=-1){
+            if(hasBeenModified && msgList.size()>0){
+                MainActivity.getChatLinkedList().get(chatIndex).setLastMsgId(msgList.getFirst().get_id());
+                setResult(RESULT_OK);
+            }
+        }
+        super.onBackPressed();
     }
 
     @Override
@@ -201,37 +259,40 @@ public class ChatWindowActivity extends AppCompatActivity implements ValueEventL
     }
 
     @Override
-    public void onDataChange(@NonNull DataSnapshot snapshot) {
-        if(snapshot.exists()){
-            Boolean isOnline = snapshot.getValue(Boolean.class);
-            if(isOnline!=null){
-                if(isOnline){
-                    String online ="Online";
-                    onlineStatusField.setText(online);
-                }else{
-                    onlineStatusRef.getParent().child(Const.LAST_SEEN_REF)
-                            .get()
-                            .addOnCompleteListener(task->{
-                               if(task.isSuccessful()){
-                                   String lastSeen = task.getResult().getValue(String.class);
-                                   onlineStatusField.setText(lastSeen);
-                               }
-                            });
+    protected void onDestroy() {
+        onlineStatusRef.removeEventListener(onlineStatusListener);
+        dbHandler.close();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(msgReceiver);
+        super.onDestroy();
+    }
+
+    public class OnlineStatusListener implements ValueEventListener{
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if(snapshot.exists()){
+                Boolean isOnline = snapshot.getValue(Boolean.class);
+                if(isOnline!=null){
+                    if(isOnline){
+                        String online ="Online";
+                        onlineStatusField.setText(online);
+                    }else{
+                        onlineStatusRef.getParent().child(Const.LAST_SEEN_REF)
+                                .get()
+                                .addOnCompleteListener(task->{
+                                    if(task.isSuccessful()){
+                                        String lastSeen = task.getResult().getValue(String.class);
+                                        onlineStatusField.setText(lastSeen);
+                                    }
+                                });
+                    }
                 }
             }
         }
-    }
 
-    @Override
-    public void onCancelled(@NonNull DatabaseError error) {
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
 
-    }
+        }
 
-    @Override
-    protected void onDestroy() {
-        onlineStatusRef.removeEventListener(this);
-        msgRef.removeEventListener(this);
-        dbHandler.close();
-        super.onDestroy();
     }
 }

@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.app.chitchat.chatWindow.ChatWindowActivity;
 import com.app.chitchat.R;
@@ -36,6 +37,9 @@ public class MessageConsumer implements ChildEventListener, ValueEventListener {
     private boolean isRunning;
     private final String NOTIFICATION_CHANNEL_ID = "chitchat_msg_channel";
     private final Object waitLock;
+
+    public final static String ACTION_MSG_LISTENER = "chitchat.messageConsumer.action.msgListener";
+    public final static String MSG_ID = "_msgId";
 
     public MessageConsumer(Context context){
         this.context = context;
@@ -123,11 +127,20 @@ public class MessageConsumer implements ChildEventListener, ValueEventListener {
     }
 
     public void consumeMsg(Profile profile, Message msg){
-        long id = dbHandler.insertMessage(profile.get_id(), msg);
+        boolean isChatWindowOpen = (ChatWindowActivity.profile!=null && profile.get_id().equals(ChatWindowActivity.profile.get_id()));
+        long id = dbHandler.insertMessage(profile.get_id(),profile.get_id(), msg, !isChatWindowOpen);
         if(id == -1){
             notifyStatus("Error: enable to insert msg from "+profile.get_id(), -1);
         }else{
-            if(!MainActivity.isForeground && (ChatWindowActivity.profile==null || !profile.get_id().equals(ChatWindowActivity.profile.get_id())))
+            if(MainActivity.isForeground){
+                //TODO send broadcast to main activity here
+                notifyMsg(profile, msg, id);    //tmp notify
+            }else if(isChatWindowOpen){
+                Intent intent = new Intent(ACTION_MSG_LISTENER);
+                intent.putExtra(MSG_ID, id);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+            }
+            else
                 notifyMsg(profile, msg, id);
         }
     }
