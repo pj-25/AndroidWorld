@@ -8,4 +8,4 @@
 ## History
 Mobile application development coursework and experiments: Chitchat, Blogholic and the MAD practicals.
 
-To be archived as a read-only record. The code and commit history are unchanged.
+Archived on GitHub in 2026 as a read-only record. The code and commit history are unchanged. The Firebase projects behind the API keys in its history (chitchat, blogholic) were shut down in 2026-11, so those keys no longer work.
